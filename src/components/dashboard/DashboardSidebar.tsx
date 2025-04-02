@@ -20,6 +20,11 @@ const menuItems = [
     path: "/dashboard",
   },
   {
+    title: "Sales Automation",
+    icon: DollarSign,
+    path: "/dashboard/pricing",
+  },
+  {
     title: "Communication",
     icon: MessageSquare,
     path: "/dashboard/communication",
@@ -28,11 +33,6 @@ const menuItems = [
     title: "Bookings",
     icon: Calendar,
     path: "/dashboard/bookings",
-  },
-  {
-    title: "Pricing",
-    icon: DollarSign,
-    path: "/dashboard/pricing",
   },
   {
     title: "Operations",

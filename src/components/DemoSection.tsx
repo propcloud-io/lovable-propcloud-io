@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, DollarSign, Calendar } from "lucide-react";
 
 const DemoSection = () => {
-  const [activeTab, setActiveTab] = useState("communication");
+  const [activeTab, setActiveTab] = useState("sales");
 
   return (
     <section id="demo" className="py-20 bg-propcloud-50">
@@ -19,19 +19,126 @@ const DemoSection = () => {
           </h2>
           <p className="text-lg text-muted-foreground">
             Discover how our AI assistant handles real property management scenarios,
-            from guest inquiries to dynamic pricing adjustments.
+            from automated sales to operations management.
           </p>
         </div>
 
         <div className="max-w-5xl mx-auto">
-          <Tabs defaultValue="communication" className="animate-fade-up" onValueChange={setActiveTab}>
+          <Tabs defaultValue="sales" className="animate-fade-up" onValueChange={setActiveTab}>
             <div className="flex justify-center mb-8">
               <TabsList>
+                <TabsTrigger value="sales">Sales Automation</TabsTrigger>
                 <TabsTrigger value="communication">Guest Communication</TabsTrigger>
-                <TabsTrigger value="pricing">Dynamic Pricing</TabsTrigger>
                 <TabsTrigger value="operations">Operations</TabsTrigger>
               </TabsList>
             </div>
+
+            <TabsContent value="sales">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="rounded-xl overflow-hidden shadow-xl">
+                  <div className="bg-white p-6 rounded-t-xl border-b">
+                    <h3 className="font-semibold text-lg flex items-center">
+                      <DollarSign className="h-5 w-5 mr-2 text-propcloud-600" />
+                      Direct Booking Automation
+                    </h3>
+                  </div>
+                  <div className="bg-white p-6">
+                    <div className="mb-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="text-sm font-medium">Instagram Message</h4>
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">New Inquiry</span>
+                      </div>
+                      
+                      {/* Simulated chat conversation */}
+                      <div className="border rounded-lg p-3 mb-4">
+                        <div className="flex items-start mb-3">
+                          <div className="h-8 w-8 bg-gray-200 rounded-full flex-shrink-0 mr-2"></div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">John Smith • 2 hours ago</p>
+                            <div className="bg-gray-100 p-2 rounded-lg">
+                              <p className="text-sm">Hi, I saw your beach house on Instagram. Is it available next weekend? How much would it cost for 4 people?</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start mb-3">
+                          <div className="h-8 w-8 bg-propcloud-100 rounded-full flex-shrink-0 mr-2 flex items-center justify-center">
+                            <span className="text-xs font-medium text-propcloud-600">AI</span>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">PropCloud AI • 2 hours ago</p>
+                            <div className="bg-propcloud-50 p-2 rounded-lg">
+                              <p className="text-sm">Hello John! Yes, our Luxury Beach Villa is available next weekend (Oct 27-29). For 4 guests, the total cost would be $799 for 2 nights, including all fees. Would you like to secure this booking?</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <div className="h-8 w-8 bg-gray-200 rounded-full flex-shrink-0 mr-2"></div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">John Smith • 1 hour ago</p>
+                            <div className="bg-gray-100 p-2 rounded-lg">
+                              <p className="text-sm">That sounds great! How do I book it?</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Payment automation */}
+                      <div className="bg-white border rounded-lg p-4">
+                        <h5 className="text-sm font-medium mb-2">AI Generated Booking Link</h5>
+                        <div className="bg-propcloud-50 rounded-lg p-3 flex items-center justify-between mb-3">
+                          <span className="text-sm font-medium">Secure Payment Link Created</span>
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Automatic</span>
+                        </div>
+                        <Button size="sm" className="w-full">Preview Payment Link</Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xl font-semibold mb-3">Sales Automation</h4>
+                  <p className="text-muted-foreground mb-6">
+                    Our AI assistant manages the entire sales process from inquiry to payment, turning social media conversations into direct bookings.
+                  </p>
+                  
+                  <ul className="space-y-4">
+                    <li className="flex items-start">
+                      <div className="bg-propcloud-100 rounded-full p-1 mr-3 mt-1">
+                        <div className="w-2 h-2 bg-propcloud-600 rounded-full"></div>
+                      </div>
+                      <div>
+                        <span className="font-medium block mb-1">Direct Booking via Social Media</span>
+                        <span className="text-sm text-muted-foreground">AI chatbot manages inquiries, confirms availability, and processes payments via Facebook/Instagram Messenger</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="bg-propcloud-100 rounded-full p-1 mr-3 mt-1">
+                        <div className="w-2 h-2 bg-propcloud-600 rounded-full"></div>
+                      </div>
+                      <div>
+                        <span className="font-medium block mb-1">Dynamic Pricing</span>
+                        <span className="text-sm text-muted-foreground">AI adjusts rates based on 20+ variables including demand, competitor rates, and local events</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="bg-propcloud-100 rounded-full p-1 mr-3 mt-1">
+                        <div className="w-2 h-2 bg-propcloud-600 rounded-full"></div>
+                      </div>
+                      <div>
+                        <span className="font-medium block mb-1">Marketing Automation</span>
+                        <span className="text-sm text-muted-foreground">AI creates and runs targeted campaigns to fill vacancy gaps and maximize bookings</span>
+                      </div>
+                    </li>
+                  </ul>
+                  
+                  <Button className="mt-6" onClick={() => window.location.href = "/dashboard/pricing"}>
+                    Try Sales Automation Demo
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
 
             <TabsContent value="communication">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -39,21 +146,21 @@ const DemoSection = () => {
                   <div className="bg-white p-6 rounded-t-xl border-b">
                     <h3 className="font-semibold text-lg flex items-center">
                       <MessageSquare className="h-5 w-5 mr-2 text-propcloud-600" />
-                      Guest Conversation
+                      Multi-Channel Inbox
                     </h3>
                   </div>
                   <div className="bg-gray-50 p-4">
                     <div className="bg-white rounded-lg p-3 mb-3 max-w-[80%]">
                       <p className="text-sm">Hi, I'm interested in booking your Beach Villa for next weekend. Is it available?</p>
-                      <p className="text-xs text-gray-500 mt-1">Guest - 2:34 PM</p>
+                      <p className="text-xs text-gray-500 mt-1">Guest - Airbnb</p>
                     </div>
                     <div className="bg-propcloud-100 rounded-lg p-3 mb-3 ml-auto max-w-[80%]">
                       <p className="text-sm">Hello! Thanks for your interest in our Beach Villa. Yes, it's available for next weekend. The rate is $299 per night. Would you like me to hold it for you?</p>
-                      <p className="text-xs text-gray-500 mt-1">PropCloud AI - 2:35 PM</p>
+                      <p className="text-xs text-gray-500 mt-1">PropCloud AI</p>
                     </div>
                     <div className="bg-white rounded-lg p-3 max-w-[80%]">
                       <p className="text-sm">That sounds great. What's the check-in process?</p>
-                      <p className="text-xs text-gray-500 mt-1">Guest - 2:38 PM</p>
+                      <p className="text-xs text-gray-500 mt-1">Guest - Airbnb</p>
                     </div>
                   </div>
                 </div>
@@ -84,84 +191,7 @@ const DemoSection = () => {
                     </li>
                   </ul>
                   <Button className="mt-6" onClick={() => window.location.href = "/dashboard/communication"}>
-                    Try Demo Dashboard
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="pricing">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div className="rounded-xl overflow-hidden shadow-xl">
-                  <div className="bg-white p-6 rounded-t-xl border-b">
-                    <h3 className="font-semibold text-lg flex items-center">
-                      <DollarSign className="h-5 w-5 mr-2 text-propcloud-600" />
-                      Dynamic Pricing Engine
-                    </h3>
-                  </div>
-                  <div className="bg-white p-4">
-                    <div className="mb-6">
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm font-medium">Current Price</span>
-                        <span className="text-sm font-medium">$249/night</span>
-                      </div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm font-medium">Recommended</span>
-                        <span className="text-sm font-medium text-green-600">$299/night</span>
-                      </div>
-                      <div className="h-2 bg-gray-100 rounded-full mt-2">
-                        <div className="h-full bg-gradient-to-r from-propcloud-400 to-propcloud-600 rounded-full" style={{width: "82%"}}></div>
-                      </div>
-                      <div className="flex justify-between mt-1 text-xs text-gray-500">
-                        <span>Min: $199</span>
-                        <span>Optimal</span>
-                        <span>Max: $349</span>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between p-2 bg-green-50 rounded border border-green-100">
-                        <span className="text-sm">Local event detected</span>
-                        <span className="text-sm text-green-600">+15%</span>
-                      </div>
-                      <div className="flex justify-between p-2 bg-blue-50 rounded border border-blue-100">
-                        <span className="text-sm">Weekend premium</span>
-                        <span className="text-sm text-blue-600">+10%</span>
-                      </div>
-                      <div className="flex justify-between p-2 bg-amber-50 rounded border border-amber-100">
-                        <span className="text-sm">Competitive analysis</span>
-                        <span className="text-sm text-amber-600">+5%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-xl font-semibold mb-3">Dynamic Pricing Intelligence</h4>
-                  <p className="text-muted-foreground mb-6">
-                    Our AI constantly analyzes market data, seasonal trends, and competitor rates to optimize your property pricing for maximum revenue.
-                  </p>
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <div className="bg-propcloud-100 rounded-full p-1 mr-3 mt-1">
-                        <div className="w-2 h-2 bg-propcloud-600 rounded-full"></div>
-                      </div>
-                      <span>Analyzes 20+ variables to set optimal prices</span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="bg-propcloud-100 rounded-full p-1 mr-3 mt-1">
-                        <div className="w-2 h-2 bg-propcloud-600 rounded-full"></div>
-                      </div>
-                      <span>Automatically adjusts for local events and demand shifts</span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="bg-propcloud-100 rounded-full p-1 mr-3 mt-1">
-                        <div className="w-2 h-2 bg-propcloud-600 rounded-full"></div>
-                      </div>
-                      <span>Average 15-30% revenue increase for properties</span>
-                    </li>
-                  </ul>
-                  <Button className="mt-6" onClick={() => window.location.href = "/dashboard/pricing"}>
-                    Try Demo Dashboard
+                    Try Communication Demo
                   </Button>
                 </div>
               </div>
@@ -243,8 +273,8 @@ const DemoSection = () => {
                       <span>Quality control checklists and photo verification</span>
                     </li>
                   </ul>
-                  <Button className="mt-6" onClick={() => window.location.href = "/dashboard"}>
-                    Try Demo Dashboard
+                  <Button className="mt-6" onClick={() => window.location.href = "/dashboard/operations"}>
+                    Try Operations Demo
                   </Button>
                 </div>
               </div>

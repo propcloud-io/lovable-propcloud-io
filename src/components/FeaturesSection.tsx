@@ -5,16 +5,16 @@ import { MessageSquare, DollarSign, Calendar, Star, Zap, BarChart } from "lucide
 
 const features = [
   {
-    icon: <MessageSquare className="h-10 w-10 text-propcloud-500" />,
-    title: "AI Guest Communication",
+    icon: <DollarSign className="h-10 w-10 text-propcloud-500" />,
+    title: "Sales Automation",
     description:
-      "Trainable AI chatbot responds to guest inquiries across all connected platforms, providing instant support 24/7.",
+      "AI-driven direct booking automation, dynamic pricing, and marketing campaigns to maximize revenue with minimal effort.",
   },
   {
-    icon: <DollarSign className="h-10 w-10 text-propcloud-500" />,
-    title: "Dynamic Pricing",
+    icon: <MessageSquare className="h-10 w-10 text-propcloud-500" />,
+    title: "Communication Automation",
     description:
-      "AI-driven pricing suggestions based on demand, competitor analysis, and occupancy trends to maximize revenue.",
+      "Trainable AI chatbot responds to guest inquiries across all connected platforms, providing instant support 24/7.",
   },
   {
     icon: <Star className="h-10 w-10 text-propcloud-500" />,
