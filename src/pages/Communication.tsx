@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -10,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Send, Airbnb, MessageSquare, Phone, Instagram, RefreshCw } from "lucide-react";
+import { Send, Home, MessageSquare, Phone, Instagram, RefreshCw } from "lucide-react";
 
 type Message = {
   id: string;
@@ -47,7 +46,7 @@ const Communication = () => {
       property: "Beach Villa",
       platform: "airbnb",
       lastMessage: "Hi, I'm interested in booking your property for next weekend. Is it available?",
-      lastActivity: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
+      lastActivity: new Date(Date.now() - 1000 * 60 * 5),
       unread: true,
       messages: [
         {
@@ -66,7 +65,7 @@ const Communication = () => {
       property: "Downtown Apartment",
       platform: "booking",
       lastMessage: "What's the check-in procedure? We'll be arriving around 6pm tomorrow.",
-      lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+      lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 2),
       unread: false,
       messages: [
         {
@@ -97,7 +96,7 @@ const Communication = () => {
       property: "Mountain Cabin",
       platform: "direct",
       lastMessage: "Is there parking available at the property or nearby?",
-      lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 8), // 8 hours ago
+      lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 8),
       unread: false,
       messages: [
         {
@@ -128,7 +127,7 @@ const Communication = () => {
       property: "Beach Villa",
       platform: "instagram",
       lastMessage: "Thanks for the quick response! I'll check with my friends and get back to you.",
-      lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+      lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 24),
       unread: false,
       messages: [
         {
@@ -157,7 +156,6 @@ const Communication = () => {
     e.preventDefault();
     if (!messageInput.trim() || !activeConversation) return;
 
-    // Add user message
     const updatedConversations = conversations.map(conv => {
       if (conv.id === activeConversation) {
         const newUserMessage: Message = {
@@ -180,10 +178,8 @@ const Communication = () => {
     setConversations(updatedConversations);
     setMessageInput("");
     
-    // Simulate AI thinking
     setIsTyping(true);
     
-    // Simulate AI response after a delay
     setTimeout(() => {
       setConversations(prev => prev.map(conv => {
         if (conv.id === activeConversation) {
@@ -245,7 +241,7 @@ const Communication = () => {
   const getPlatformIcon = (platform: string) => {
     switch (platform) {
       case 'airbnb':
-        return <Airbnb className="h-4 w-4 text-red-500" />;
+        return <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200 text-xs">airbnb</Badge>;
       case 'booking':
         return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 text-xs">booking.com</Badge>;
       case 'instagram':
@@ -300,7 +296,6 @@ const Communication = () => {
                             }`}
                             onClick={() => {
                               setActiveConversation(conversation.id);
-                              // Mark as read when selected
                               setConversations(prev => prev.map(conv => 
                                 conv.id === conversation.id ? { ...conv, unread: false } : conv
                               ));
