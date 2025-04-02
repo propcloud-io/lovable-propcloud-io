@@ -181,28 +181,67 @@ const Communication = () => {
     setIsTyping(true);
     
     setTimeout(() => {
+      const currentConv = conversations.find(c => c.id === activeConversation);
+      let aiResponse = "";
+      
+      if (currentConv) {
+        const lastGuestMessage = [...currentConv.messages].reverse().find(m => m.sender === "guest")?.content.toLowerCase() || "";
+        
+        if (currentConv.platform === "airbnb" && currentConv.id === "conv1") {
+          if (lastGuestMessage.includes("available") || messageInput.toLowerCase().includes("available")) {
+            aiResponse = "Yes, the Beach Villa is available next weekend! The rate is $349 per night with a minimum 2-night stay. The villa features 3 bedrooms, 2 bathrooms, a private pool, and is just a 2-minute walk to the beach. Would you like to proceed with booking?";
+          } else if (messageInput.toLowerCase().includes("book") || messageInput.toLowerCase().includes("reserve")) {
+            aiResponse = "Great! I've reserved the Beach Villa for next weekend (Friday to Sunday). To confirm your booking, please complete payment through the Airbnb platform. I've sent you a reservation request. Let me know if you need any assistance with the booking process.";
+          } else if (messageInput.toLowerCase().includes("check") || messageInput.toLowerCase().includes("arrive")) {
+            aiResponse = "Check-in time is 3 PM and check-out is by 11 AM. Our self-check-in system makes arrival easy - I'll send detailed instructions including access codes 24 hours before your arrival. If you need early check-in or late check-out, please let me know and I'll check availability.";
+          } else {
+            aiResponse = "Thank you for your message about the Beach Villa. Is there anything specific about the property or your potential stay that you'd like to know? I'm happy to provide details about amenities, local attractions, or answer any questions you might have.";
+          }
+        } else if (currentConv.platform === "booking" && currentConv.id === "conv2") {
+          if (messageInput.toLowerCase().includes("check") || messageInput.toLowerCase().includes("arrive") || messageInput.toLowerCase().includes("tomorrow")) {
+            aiResponse = "For your check-in tomorrow at 6 PM: I've sent the access code to your email. The building is located at 123 Main Street, and your apartment is #405. The elevator is to the right of the lobby. Parking is available in the garage (level P1, spot 23). Call the front desk at 555-1234 if you need any assistance upon arrival.";
+          } else if (messageInput.toLowerCase().includes("wifi") || messageInput.toLowerCase().includes("internet")) {
+            aiResponse = "The WiFi network name is 'Downtown405' and the password is 'Guest2023!'. The connection is high-speed fiber (300 Mbps) that works throughout the apartment and common areas.";
+          } else if (messageInput.toLowerCase().includes("extend") || messageInput.toLowerCase().includes("longer")) {
+            aiResponse = "I've checked our availability, and we can extend your stay by up to 3 additional nights if needed. The rate would be the same ($179 per night). Let me know if you'd like to proceed, and I can update your reservation.";
+          } else {
+            aiResponse = "Thanks for reaching out about your stay at the Downtown Apartment tomorrow. I've noted your arrival time of 6 PM. The electronic keypad will be programmed for your access, and I've prepared a welcome guide with all the apartment details and local recommendations. Is there anything specific you need prepared for your arrival?";
+          }
+        } else if (currentConv.id === "conv3") {
+          if (messageInput.toLowerCase().includes("parking") || lastGuestMessage.includes("parking")) {
+            aiResponse = "Yes, there is free parking available at the Mountain Cabin. There's a private driveway with space for up to 2 vehicles. There's also overflow parking available about 100 yards down the road if needed. All parking is included in your reservation at no additional cost.";
+          } else if (messageInput.toLowerCase().includes("hike") || messageInput.toLowerCase().includes("trail")) {
+            aiResponse = "The cabin is perfectly located for hiking enthusiasts! There are 3 trailheads within a 5-minute walk: Bear Ridge Trail (easy, 2 miles), Summit Path (moderate, 4 miles), and Eagle's View (challenging, 6 miles). I've placed a trail map in the cabin, and there's also a digital copy in your booking confirmation email.";
+          } else if (messageInput.toLowerCase().includes("cancel") || messageInput.toLowerCase().includes("refund")) {
+            aiResponse = "Our cancellation policy allows for a full refund if canceled 7 days before check-in. For cancellations within 7 days of arrival, we offer a 50% refund. Would you like me to provide more information about rescheduling options?";
+          } else {
+            aiResponse = "Thank you for your interest in our Mountain Cabin. It's a beautiful retreat with panoramic forest views, a wood-burning fireplace, and modern amenities. The cabin is located 15 minutes from town but feels completely private and secluded. Would you like information about availability or rates for specific dates?";
+          }
+        } else {
+          if (messageInput.toLowerCase().includes("beach") || messageInput.toLowerCase().includes("swim")) {
+            aiResponse = "The Beach Villa is just 50 yards from the shoreline with a private path leading directly to the beach. The beach is quiet and not crowded, even during peak season. We provide beach chairs, umbrellas, and towels for guests. There's also a outdoor shower for rinsing off after beach time.";
+          } else if (messageInput.toLowerCase().includes("discount") || messageInput.toLowerCase().includes("price") || messageInput.toLowerCase().includes("rate")) {
+            aiResponse = "For your July 15-20 dates, I can offer a 10% discount since you'll be staying for 5 nights, bringing the nightly rate to $269. The total would be $1,345 plus taxes. This includes all amenities, cleaning fee, and complimentary welcome basket.";
+          } else if (messageInput.toLowerCase().includes("restaurant") || messageInput.toLowerCase().includes("dining") || messageInput.toLowerCase().includes("food")) {
+            aiResponse = "There are several great dining options nearby! Within walking distance (5-10 mins): Shoreline Café (casual seafood), Azure Bistro (upscale dining), and Beachcomber (great breakfast spot). I recommend making reservations for dinner places, especially during July. Would you like me to suggest any specific cuisine?";
+          } else {
+            aiResponse = "I'm happy to assist with your potential Beach Villa booking for 4 guests from July 15-20. The villa comfortably accommodates your group with 2 bedrooms (king bed in master, two queens in second bedroom) and a pull-out sofa if needed. Take your time discussing with your friends - this is a popular property but I can hold these dates for you for 24 hours if you'd like.";
+          }
+        }
+      }
+      
       setConversations(prev => prev.map(conv => {
         if (conv.id === activeConversation) {
-          const aiResponses = [
-            "I'll check our availability for those dates and get back to you shortly.",
-            "Yes, we have high-speed WiFi available throughout the property.",
-            "The check-in time is 3 PM and check-out is by 11 AM. We can sometimes be flexible if needed.",
-            "Your reservation is confirmed! You'll receive an email with all the details shortly.",
-            "The nearest airport is about 30 minutes away by car. There's also a shuttle service available."
-          ];
-          
-          const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-          
           const newAiMessage: Message = {
             id: `msg${Date.now()}`,
             sender: "ai",
-            content: randomResponse,
+            content: aiResponse,
             timestamp: new Date()
           };
           
           return {
             ...conv,
-            lastMessage: randomResponse,
+            lastMessage: aiResponse,
             lastActivity: new Date(),
             messages: [...conv.messages, newAiMessage]
           };
@@ -214,7 +253,7 @@ const Communication = () => {
       
       toast({
         title: "AI Response Sent",
-        description: "PropCloud AI has responded to the guest message"
+        description: "PropCloud AI has responded to the message"
       });
     }, 2000);
   };
