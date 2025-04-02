@@ -2,10 +2,20 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlayCircle } from "lucide-react";
+import { PlayCircle, Pause } from "lucide-react";
 
 const DemoSection = () => {
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  const handlePlay = (videoId: string) => {
+    setActiveVideo(videoId);
+    setIsPlaying(true);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+  };
 
   return (
     <section id="demo" className="py-20 bg-propcloud-50">
@@ -24,7 +34,7 @@ const DemoSection = () => {
         </div>
 
         <div className="max-w-5xl mx-auto">
-          <Tabs defaultValue="communication">
+          <Tabs defaultValue="communication" className="animate-fade-up">
             <div className="flex justify-center mb-8">
               <TabsList>
                 <TabsTrigger value="communication">Guest Communication</TabsTrigger>
@@ -35,7 +45,7 @@ const DemoSection = () => {
 
             <TabsContent value="communication">
               <div className="aspect-video relative bg-black rounded-xl overflow-hidden shadow-xl">
-                {!isPlaying ? (
+                {!isPlaying || activeVideo !== "communication" ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <div className="bg-propcloud-600/90 w-full h-full absolute"></div>
                     <div className="relative z-10 text-center px-4">
@@ -49,7 +59,7 @@ const DemoSection = () => {
                       <Button
                         size="lg"
                         className="rounded-full"
-                        onClick={() => setIsPlaying(true)}
+                        onClick={() => handlePlay("communication")}
                       >
                         <PlayCircle className="mr-2 h-5 w-5" />
                         Watch Demo
@@ -57,58 +67,132 @@ const DemoSection = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full h-full bg-propcloud-100 flex items-center justify-center">
-                    <div className="text-center p-8">
-                      <h3 className="text-xl font-medium mb-4">Demo Video Placeholder</h3>
-                      <p className="text-muted-foreground">
-                        In a real implementation, this would play an embedded video
-                        showcasing the AI communication features.
-                      </p>
+                  <div className="w-full h-full bg-black relative">
+                    <video 
+                      className="w-full h-full object-contain" 
+                      controls 
+                      autoPlay 
+                      onPause={handlePause}
+                    >
+                      <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                    <div className="absolute bottom-4 left-4 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+                      AI Communication Demo
                     </div>
                   </div>
                 )}
+              </div>
+              <div className="mt-6 bg-white p-6 rounded-lg shadow-sm">
+                <h4 className="text-lg font-semibold mb-2">Key Features:</h4>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                  <li>Instant responses to guest inquiries across all connected platforms</li>
+                  <li>Trained AI that handles booking questions, property details, and local recommendations</li>
+                  <li>Seamless escalation to human staff when needed</li>
+                  <li>Multilingual support for global guests</li>
+                </ul>
               </div>
             </TabsContent>
 
             <TabsContent value="pricing">
               <div className="aspect-video relative bg-black rounded-xl overflow-hidden shadow-xl">
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="bg-propcloud-800/90 w-full h-full absolute"></div>
-                  <div className="relative z-10 text-center px-4">
-                    <h3 className="text-white text-2xl font-semibold mb-4">
-                      Dynamic Pricing Optimization
-                    </h3>
-                    <p className="text-white/90 mb-6">
-                      Watch how PropCloud's AI analyzes market data to suggest optimal pricing
-                      strategies that maximize revenue.
-                    </p>
-                    <Button size="lg" className="rounded-full">
-                      <PlayCircle className="mr-2 h-5 w-5" />
-                      Watch Demo
-                    </Button>
+                {!isPlaying || activeVideo !== "pricing" ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <div className="bg-propcloud-800/90 w-full h-full absolute"></div>
+                    <div className="relative z-10 text-center px-4">
+                      <h3 className="text-white text-2xl font-semibold mb-4">
+                        Dynamic Pricing Optimization
+                      </h3>
+                      <p className="text-white/90 mb-6">
+                        Watch how PropCloud's AI analyzes market data to suggest optimal pricing
+                        strategies that maximize revenue.
+                      </p>
+                      <Button 
+                        size="lg" 
+                        className="rounded-full"
+                        onClick={() => handlePlay("pricing")}
+                      >
+                        <PlayCircle className="mr-2 h-5 w-5" />
+                        Watch Demo
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="w-full h-full bg-black relative">
+                    <video 
+                      className="w-full h-full object-contain" 
+                      controls 
+                      autoPlay
+                      onPause={handlePause}
+                    >
+                      <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                    <div className="absolute bottom-4 left-4 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+                      Dynamic Pricing Demo
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="mt-6 bg-white p-6 rounded-lg shadow-sm">
+                <h4 className="text-lg font-semibold mb-2">Key Features:</h4>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                  <li>Real-time market analysis and competitor tracking</li>
+                  <li>Seasonal demand forecasting and event-based price adjustments</li>
+                  <li>Custom rules engine for fine-grained control</li>
+                  <li>Profit margin optimization across all booking channels</li>
+                </ul>
               </div>
             </TabsContent>
 
             <TabsContent value="operations">
               <div className="aspect-video relative bg-black rounded-xl overflow-hidden shadow-xl">
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="bg-propcloud-700/90 w-full h-full absolute"></div>
-                  <div className="relative z-10 text-center px-4">
-                    <h3 className="text-white text-2xl font-semibold mb-4">
-                      Operations Automation
-                    </h3>
-                    <p className="text-white/90 mb-6">
-                      See how PropCloud streamlines cleaning schedules, maintenance tasks, and staff
-                      coordination automatically.
-                    </p>
-                    <Button size="lg" className="rounded-full">
-                      <PlayCircle className="mr-2 h-5 w-5" />
-                      Watch Demo
-                    </Button>
+                {!isPlaying || activeVideo !== "operations" ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <div className="bg-propcloud-700/90 w-full h-full absolute"></div>
+                    <div className="relative z-10 text-center px-4">
+                      <h3 className="text-white text-2xl font-semibold mb-4">
+                        Operations Automation
+                      </h3>
+                      <p className="text-white/90 mb-6">
+                        See how PropCloud streamlines cleaning schedules, maintenance tasks, and staff
+                        coordination automatically.
+                      </p>
+                      <Button 
+                        size="lg" 
+                        className="rounded-full"
+                        onClick={() => handlePlay("operations")}
+                      >
+                        <PlayCircle className="mr-2 h-5 w-5" />
+                        Watch Demo
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="w-full h-full bg-black relative">
+                    <video 
+                      className="w-full h-full object-contain" 
+                      controls 
+                      autoPlay
+                      onPause={handlePause}
+                    >
+                      <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                    <div className="absolute bottom-4 left-4 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+                      Operations Demo
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="mt-6 bg-white p-6 rounded-lg shadow-sm">
+                <h4 className="text-lg font-semibold mb-2">Key Features:</h4>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                  <li>Automated cleaning and maintenance scheduling</li>
+                  <li>Smart task assignment to staff based on location and availability</li>
+                  <li>Quality control checklists and photo verification</li>
+                  <li>Real-time issue reporting and resolution tracking</li>
+                </ul>
               </div>
             </TabsContent>
           </Tabs>
