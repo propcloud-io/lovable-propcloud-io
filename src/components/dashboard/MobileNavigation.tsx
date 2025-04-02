@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, MessageSquare, Calendar, DollarSign, BarChart, Settings, Menu, X } from "lucide-react";
+import { Home, MessageSquare, Calendar, DollarSign, BarChart, Settings, Menu, X, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -26,6 +26,11 @@ const menuItems = [
     title: "Pricing",
     icon: DollarSign,
     path: "/dashboard/pricing",
+  },
+  {
+    title: "Operations",
+    icon: Users,
+    path: "/dashboard/operations",
   },
   {
     title: "Analytics",

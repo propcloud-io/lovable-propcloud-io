@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer className="bg-white border-t border-border py-12">
       <div className="container px-4 mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <div className="mb-4">
               <Link to="/" className="flex items-center">
@@ -19,27 +19,6 @@ const Footer = () => {
               AI-powered property management assistant that automates guest communication,
               bookings, pricing, and operations.
             </p>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Features</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="#features" className="text-muted-foreground hover:text-propcloud-600">
-                  AI Communication
-                </a>
-              </li>
-              <li>
-                <a href="#features" className="text-muted-foreground hover:text-propcloud-600">
-                  Dynamic Pricing
-                </a>
-              </li>
-              <li>
-                <a href="#features" className="text-muted-foreground hover:text-propcloud-600">
-                  Operations
-                </a>
-              </li>
-            </ul>
           </div>
 
           <div>
