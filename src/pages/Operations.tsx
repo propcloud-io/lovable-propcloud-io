@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -13,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarCheck, Clock, Users, AlertCircle, CheckCircle, Tool, BarChart } from "lucide-react";
+import { CalendarCheck, Clock, Users, AlertCircle, CheckCircle, Wrench, BarChart } from "lucide-react";
 
 const Operations = () => {
   const { toast } = useToast();
@@ -578,7 +577,7 @@ const Operations = () => {
                       <h3 className="text-lg font-medium mb-4">Task Distribution</h3>
                       <div className="h-[300px] bg-slate-50 flex items-center justify-center border rounded-lg">
                         <div className="text-center">
-                          <BarChart className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                          <Wrench className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
                           <p className="text-muted-foreground">Task distribution chart visualization</p>
                         </div>
                       </div>
