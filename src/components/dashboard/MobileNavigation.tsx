@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, MessageSquare, Calendar, DollarSign, BarChart, Settings, Menu, X, Users } from "lucide-react";
+import { Home, MessageSquare, Calendar, DollarSign, BarChart, Settings, Menu, X, Users, Wrench, LineChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -13,28 +13,23 @@ const menuItems = [
     path: "/dashboard",
   },
   {
+    title: "Sales Automation",
+    icon: DollarSign,
+    path: "/dashboard/sales-automation",
+  },
+  {
     title: "Communication",
     icon: MessageSquare,
     path: "/dashboard/communication",
   },
   {
-    title: "Bookings",
-    icon: Calendar,
-    path: "/dashboard/bookings",
-  },
-  {
-    title: "Sales",
-    icon: DollarSign,
-    path: "/dashboard/sales-automation",
-  },
-  {
     title: "Operations",
-    icon: Users,
+    icon: Wrench,
     path: "/dashboard/operations",
   },
   {
     title: "Analytics",
-    icon: BarChart,
+    icon: LineChart,
     path: "/dashboard/analytics",
   },
   {

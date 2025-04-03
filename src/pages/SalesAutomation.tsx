@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -755,3 +756,27 @@ const SalesAutomation = () => {
                         <Badge variant="outline" className="py-1 px-3 bg-purple-50 border-purple-200">
                           <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
                           Instagram DM
+                        </Badge>
+                        <Badge variant="outline" className="py-1 px-3 bg-green-50 border-green-200">
+                          <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                          WhatsApp
+                        </Badge>
+                        <Badge variant="outline" className="py-1 px-3 bg-gray-50 border-gray-200">
+                          <div className="w-2 h-2 rounded-full bg-gray-500 mr-2"></div>
+                          Email
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+      <MobileNavigation />
+    </div>
+  );
+};
+
+export default SalesAutomation;

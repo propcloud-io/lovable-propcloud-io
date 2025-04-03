@@ -11,6 +11,8 @@ import {
   Settings,
   Users,
   HelpCircle,
+  Wrench,
+  LineChart,
 } from "lucide-react";
 
 const menuItems = [
@@ -30,18 +32,13 @@ const menuItems = [
     path: "/dashboard/communication",
   },
   {
-    title: "Bookings",
-    icon: Calendar,
-    path: "/dashboard/bookings",
-  },
-  {
     title: "Operations",
-    icon: Users,
+    icon: Wrench,
     path: "/dashboard/operations",
   },
   {
     title: "Analytics",
-    icon: BarChart,
+    icon: LineChart,
     path: "/dashboard/analytics",
   },
   {
