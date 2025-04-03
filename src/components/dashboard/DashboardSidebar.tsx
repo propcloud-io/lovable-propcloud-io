@@ -24,7 +24,8 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem, 
-  SidebarMenuButton
+  SidebarMenuButton,
+  SidebarProvider
 } from "@/components/ui/sidebar";
 
 const menuItems = [
@@ -68,6 +69,7 @@ const menuItems = [
 const DashboardSidebar = () => {
   const location = useLocation();
   
+  // This component already has access to the SidebarProvider context from parent components
   return (
     <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border">
       <SidebarHeader className="flex h-14 items-center border-b px-4">
