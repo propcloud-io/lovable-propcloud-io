@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 type DashboardWidgetProps = {
   title: string;
@@ -20,6 +21,9 @@ type DashboardWidgetProps = {
   onExpand?: () => void;
   isExpandable?: boolean;
   id?: string;
+  headerActions?: React.ReactNode;
+  variant?: 'default' | 'compact';
+  fullHeight?: boolean;
 };
 
 const DashboardWidget = ({ 
@@ -29,7 +33,10 @@ const DashboardWidget = ({
   onRemove,
   onExpand,
   isExpandable = true,
-  id
+  id,
+  headerActions,
+  variant = 'default',
+  fullHeight = false,
 }: DashboardWidgetProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -39,10 +46,27 @@ const DashboardWidget = ({
   };
 
   return (
-    <Card className={`shadow-sm border transition-all ${isExpanded ? 'col-span-full row-span-2' : ''} ${className}`} id={id}>
-      <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-md font-medium">{title}</CardTitle>
+    <Card 
+      className={cn(
+        "shadow-sm border transition-all", 
+        isExpanded && "col-span-full row-span-2",
+        fullHeight && "h-full flex flex-col",
+        className
+      )} 
+      id={id}
+    >
+      <CardHeader className={cn(
+        "flex flex-row items-center justify-between space-y-0",
+        variant === 'compact' && "pb-2"
+      )}>
+        <CardTitle className={cn(
+          "font-medium",
+          variant === 'compact' ? "text-sm" : "text-md" 
+        )}>
+          {title}
+        </CardTitle>
         <div className="flex items-center space-x-1">
+          {headerActions}
           {isExpandable && (
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleExpand}>
               {isExpanded ? (
@@ -82,7 +106,11 @@ const DashboardWidget = ({
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent className={`${isExpanded ? 'max-h-[600px] overflow-auto' : ''}`}>
+      <CardContent className={cn(
+        isExpanded && "max-h-[600px] overflow-auto",
+        fullHeight && "flex-1 overflow-auto",
+        variant === 'compact' && "pt-2"
+      )}>
         {children}
       </CardContent>
     </Card>
