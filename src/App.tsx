@@ -8,8 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Communication from "./pages/Communication";
-import Pricing from "./pages/Pricing"; 
-import Login from "./pages/Login";
+import SalesAutomation from "./pages/SalesAutomation"; // Renamed from Pricing
 import Bookings from "./pages/Bookings";
 import Operations from "./pages/Operations";
 import Analytics from "./pages/Analytics";
@@ -28,7 +27,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/communication" element={<Communication />} />
-          <Route path="/dashboard/pricing" element={<Pricing />} /> {/* This is Sales Automation in the UI */}
+          <Route path="/dashboard/sales-automation" element={<SalesAutomation />} /> {/* Updated path */}
           <Route path="/dashboard/bookings" element={<Bookings />} />
           <Route path="/dashboard/operations" element={<Operations />} />
           <Route path="/dashboard/analytics" element={<Analytics />} />

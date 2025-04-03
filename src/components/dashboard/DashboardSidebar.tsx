@@ -22,7 +22,7 @@ const menuItems = [
   {
     title: "Sales Automation",
     icon: DollarSign,
-    path: "/dashboard/pricing",
+    path: "/dashboard/sales-automation",
   },
   {
     title: "Communication",

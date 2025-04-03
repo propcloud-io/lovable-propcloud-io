@@ -23,9 +23,9 @@ const menuItems = [
     path: "/dashboard/bookings",
   },
   {
-    title: "Pricing",
+    title: "Sales",
     icon: DollarSign,
-    path: "/dashboard/pricing",
+    path: "/dashboard/sales-automation",
   },
   {
     title: "Operations",

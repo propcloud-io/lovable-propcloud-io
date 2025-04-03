@@ -133,7 +133,7 @@ const DemoSection = () => {
                     </li>
                   </ul>
                   
-                  <Button className="mt-6" onClick={() => window.location.href = "/dashboard/pricing"}>
+                  <Button className="mt-6" onClick={() => window.location.href = "/dashboard/sales-automation"}>
                     Try Sales Automation Demo
                   </Button>
                 </div>
