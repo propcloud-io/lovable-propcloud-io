@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
 const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,6 +16,10 @@ const NavBar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLoginClick = () => {
+    navigate("/login");
+  };
 
   return (
     <header
@@ -37,8 +42,8 @@ const NavBar = () => {
           <NavLink href="#how-it-works">How It Works</NavLink>
           <NavLink href="#benefits">Benefits</NavLink>
           <NavLink href="#demo">Demo</NavLink>
-          <Button asChild variant="outline" className="ml-2">
-            <Link to="/dashboard">Demo Dashboard</Link>
+          <Button asChild variant="outline" className="ml-2" onClick={handleLoginClick}>
+            <Link to="/login">Login</Link>
           </Button>
           <Button asChild className="ml-2">
             <a href="#waitlist">Join Waitlist</a>
@@ -86,9 +91,12 @@ const NavBar = () => {
               asChild
               variant="outline"
               className="w-full"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                navigate("/login");
+              }}
             >
-              <Link to="/dashboard">Demo Dashboard</Link>
+              <Link to="/login">Login</Link>
             </Button>
             <Button
               asChild

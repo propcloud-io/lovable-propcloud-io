@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
@@ -15,15 +16,15 @@ const HeroSection = () => {
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold leading-tight animate-fade-up" style={{ animationDelay: "0.2s" }}>
-              <span className="text-foreground">AI-Powered</span>{" "}
+              <span className="text-foreground">All-in-One</span>{" "}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-propcloud-600 to-propcloud-400">
                 Property Management
               </span>{" "}
-              <span className="text-foreground">Assistant</span>
+              <span className="text-foreground">Platform</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground animate-fade-up" style={{ animationDelay: "0.3s" }}>
-              Automate guest communication, booking management, dynamic pricing, 
-              and operations so you can focus on growth while maximizing revenue.
+              Automate your entire property management workflow with AI-powered tools for communication, bookings, 
+              dynamic pricing, operations, and analytics - all in one unified platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 animate-fade-up" style={{ animationDelay: "0.4s" }}>
               <Button asChild size="lg" className="px-8">
@@ -33,7 +34,7 @@ const HeroSection = () => {
                 </a>
               </Button>
               <Button asChild size="lg" variant="outline" className="px-6">
-                <a href="#demo">Watch Demo</a>
+                <Link to="/login">Try Demo Dashboard</Link>
               </Button>
             </div>
             <div className="animate-fade-up pt-2 text-muted-foreground text-sm" style={{ animationDelay: "0.5s" }}>
@@ -65,11 +66,11 @@ const HeroSection = () => {
                   <div className="space-y-1">
                     {[
                       { name: "Dashboard", active: true },
-                      { name: "Sales Automation", active: false },
+                      { name: "Analytics", active: false },
                       { name: "Communication", active: false },
                       { name: "Bookings", active: false },
+                      { name: "Sales Automation", active: false },
                       { name: "Operations", active: false },
-                      { name: "Analytics", active: false },
                       { name: "Settings", active: false }
                     ].map((item, i) => (
                       <div

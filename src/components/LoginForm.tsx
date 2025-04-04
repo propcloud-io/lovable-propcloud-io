@@ -1,96 +1,106 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+
+const formSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+});
 
 const LoginForm = () => {
-  const [email, setEmail] = useState<string>('contact@propcloud.io');
-  const [password, setPassword] = useState<string>('admin123');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-
-    // Demo login logic
-    if (email === 'contact@propcloud.io' && password === 'admin123') {
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (values.email === 'contact@propcloud' && values.password === 'admin123') {
       toast({
-        title: "Success!",
-        description: "You've logged in to the demo dashboard.",
+        title: "Login successful",
+        description: "Welcome to PropCloud dashboard",
       });
-      // Simulate API call
-      setTimeout(() => {
-        setIsLoading(false);
-        navigate('/dashboard');
-      }, 1000);
+      navigate('/dashboard');
     } else {
       toast({
         title: "Login failed",
-        description: "Please use the demo credentials: contact@propcloud.io / admin123",
+        description: "Invalid email or password",
         variant: "destructive",
       });
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl">Dashboard Login</CardTitle>
+        <CardTitle className="text-2xl font-semibold">Login</CardTitle>
         <CardDescription>
-          Enter your credentials to access the PropCloud.io dashboard demo
+          Enter your credentials to access the dashboard
         </CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <a
-                href="#"
-                className="text-sm text-propcloud-600 hover:underline"
-              >
-                Forgot password?
-              </a>
-            </div>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+            
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Enter your password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="text-sm text-muted-foreground">
-            <p>Demo credentials:</p>
-            <p>Email: contact@propcloud.io</p>
-            <p>Password: admin123</p>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Log In"}
-          </Button>
-        </CardFooter>
-      </form>
+            
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+      <CardFooter className="flex flex-col items-center">
+        <p className="text-sm text-muted-foreground mt-4">
+          For demo purposes only. No actual authentication is implemented.
+        </p>
+      </CardFooter>
     </Card>
   );
 };
