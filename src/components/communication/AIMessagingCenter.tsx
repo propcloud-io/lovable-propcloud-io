@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MessageSquare, Send, Sparkles, Save, Filter, MessagesSquare } from "lucide-react";
+import { MessageSquare, Send, Sparkles, Save, Filter, MessagesSquare, RefreshCw } from "lucide-react";
 
 const platforms = [
   { id: "airbnb", name: "Airbnb", color: "bg-red-100 text-red-700" },
@@ -74,7 +74,7 @@ const conversations = [
 ];
 
 // Sample messages for the first conversation
-const sampleMessages = [
+const initialMessages = [
   {
     id: 1,
     sender: "guest",
@@ -98,12 +98,58 @@ const sampleMessages = [
   },
 ];
 
+// AI suggested responses based on the context
+const suggestedResponses = {
+  airport: [
+    "The easiest way to reach Beach Villa from the airport is by taking a taxi, which costs around $40 and takes 30 minutes.",
+    "We recommend using the airport shuttle service that runs every hour. It costs $25 per person and drops you directly at the villa.",
+    "You can take bus #42 from the airport to Downtown and then transfer to bus #15 which stops right in front of the villa. This takes about 1 hour but only costs $5 per person."
+  ],
+  checkout: [
+    "Checkout time is at 11:00 AM. You can leave the keys on the kitchen counter and simply pull the door closed behind you.",
+    "For checkout, please ensure all windows are closed, turn off all appliances, and lock the door when you leave. The cleaning team will arrive at 11:30 AM.",
+    "Late checkout might be possible depending on our schedule. Would you like me to check if we can offer a late checkout for your stay?"
+  ],
+  nearby: [
+    "There are several great restaurants within walking distance. I'd recommend 'Ocean View' for seafood and 'Bella Italia' for Italian cuisine, both just 5 minutes away.",
+    "The nearest grocery store is 'Market Fresh' which is a 7-minute walk from the villa. They're open daily from 7 AM to 10 PM.",
+    "For entertainment, there's a movie theater and shopping mall about 15 minutes away by car. The beach is just a 3-minute walk from your door."
+  ]
+};
+
 const AIMessagingCenter = () => {
   const { toast } = useToast();
   const [selectedConversation, setSelectedConversation] = useState(1);
-  const [messages, setMessages] = useState(sampleMessages);
+  const [messages, setMessages] = useState(initialMessages);
   const [newMessage, setNewMessage] = useState("");
   const [platformFilter, setPlatformFilter] = useState("all");
+  const [isTyping, setIsTyping] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  
+  // Function to detect message context and provide relevant suggestions
+  const analyzeMessageContext = (msg: string) => {
+    const lowerMsg = msg.toLowerCase();
+    
+    if (lowerMsg.includes("airport") || lowerMsg.includes("transportation") || lowerMsg.includes("get to") || lowerMsg.includes("arrive")) {
+      return suggestedResponses.airport;
+    } else if (lowerMsg.includes("checkout") || lowerMsg.includes("leave") || lowerMsg.includes("departing")) {
+      return suggestedResponses.checkout;
+    } else if (lowerMsg.includes("restaurant") || lowerMsg.includes("food") || lowerMsg.includes("eat") || lowerMsg.includes("store") || lowerMsg.includes("shop")) {
+      return suggestedResponses.nearby;
+    }
+    
+    return [];
+  };
+  
+  useEffect(() => {
+    // Analyze last guest message when conversation changes
+    const lastGuestMessage = [...messages].reverse().find(m => m.sender === "guest");
+    if (lastGuestMessage) {
+      const suggestions = analyzeMessageContext(lastGuestMessage.content);
+      setAiSuggestions(suggestions);
+    }
+  }, [messages, selectedConversation]);
   
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -119,32 +165,74 @@ const AIMessagingCenter = () => {
     setMessages([...messages, newMsg]);
     setNewMessage("");
     
-    // Simulate AI response
+    // Simulate guest typing and response after a delay
+    if (Math.random() > 0.5) {
+      simulateGuestResponse();
+    }
+  };
+  
+  const simulateGuestResponse = () => {
+    // Show typing indicator
+    setIsTyping(true);
+    
+    // Random delay between 3-8 seconds
+    const responseDelay = Math.floor(Math.random() * 5000) + 3000;
+    
     setTimeout(() => {
-      const aiResponse = {
+      setIsTyping(false);
+      
+      const guestResponses = [
+        "Thanks for the information! That's very helpful.",
+        "Perfect, I appreciate your help!",
+        "Great, looking forward to our stay!",
+        "One more question - are there any good restaurants nearby?",
+        "Got it! What time is checkout on our last day?",
+      ];
+      
+      const randomResponse = guestResponses[Math.floor(Math.random() * guestResponses.length)];
+      
+      const guestMsg = {
         id: messages.length + 2,
-        sender: "host",
-        content: "I'm generating a personalized response based on your property details and guest history...",
+        sender: "guest",
+        content: randomResponse,
         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-        isAI: true,
+        isAI: false,
       };
       
-      setMessages(prev => [...prev, aiResponse]);
+      setMessages(prev => [...prev, guestMsg]);
       
-      toast({
-        title: "AI Response Generated",
-        description: "AI assistant has responded to the guest message.",
-      });
-    }, 1000);
+      // Update AI suggestions based on the new guest message
+      setAiSuggestions(analyzeMessageContext(randomResponse));
+    }, responseDelay);
   };
   
   const handleGenerateAIResponse = () => {
-    toast({
-      title: "AI Response Generated",
-      description: "AI assistant has drafted a response for your review.",
-    });
+    setIsGeneratingAI(true);
     
-    setNewMessage("Based on your stay details, I recommend taking the airport shuttle which runs every 30 minutes. It costs $25 per person and will drop you right at the villa. Would you like me to send you the schedule?");
+    // Simulate AI generation with a small delay
+    setTimeout(() => {
+      // Get suggestions based on the latest guest message
+      const lastGuestMessage = [...messages].reverse().find(m => m.sender === "guest");
+      let suggestions = [];
+      
+      if (lastGuestMessage) {
+        suggestions = analyzeMessageContext(lastGuestMessage.content);
+      }
+      
+      // If we have suggestions, use one; otherwise use a default response
+      if (suggestions.length > 0) {
+        setNewMessage(suggestions[Math.floor(Math.random() * suggestions.length)]);
+      } else {
+        setNewMessage("Thank you for your message. Is there anything else I can help you with during your stay at Beach Villa?");
+      }
+      
+      setIsGeneratingAI(false);
+      
+      toast({
+        title: "AI Response Generated",
+        description: "AI assistant has drafted a response for your review.",
+      });
+    }, 1200);
   };
   
   const handleSaveResponseTemplate = () => {
@@ -154,6 +242,10 @@ const AIMessagingCenter = () => {
       title: "Template Saved",
       description: "This response has been saved as a template for future use.",
     });
+  };
+  
+  const handleUseSuggestion = (suggestion: string) => {
+    setNewMessage(suggestion);
   };
 
   const filteredConversations = platformFilter === "all" 
@@ -234,8 +326,16 @@ const AIMessagingCenter = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleGenerateAIResponse}>
-                  <Sparkles className="h-4 w-4 mr-1" /> AI Draft
+                <Button variant="outline" size="sm" onClick={handleGenerateAIResponse} disabled={isGeneratingAI}>
+                  {isGeneratingAI ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-1 animate-spin" /> Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-1" /> AI Draft
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
@@ -263,7 +363,39 @@ const AIMessagingCenter = () => {
                   </div>
                 </div>
               ))}
+              
+              {isTyping && (
+                <div className="flex">
+                  <div className="bg-slate-100 rounded-lg p-3 max-w-[80%]">
+                    <div className="flex space-x-1 items-center h-6">
+                      <div className="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                      <div className="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style={{ animationDelay: "150ms" }}></div>
+                      <div className="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style={{ animationDelay: "300ms" }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
+            
+            {/* AI suggested responses */}
+            {aiSuggestions.length > 0 && (
+              <div className="px-3 py-2 border-t bg-slate-50">
+                <p className="text-xs text-muted-foreground mb-2">AI Suggested Responses:</p>
+                <div className="flex flex-wrap gap-2">
+                  {aiSuggestions.map((suggestion, index) => (
+                    <Button 
+                      key={index} 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs text-left whitespace-normal h-auto py-1"
+                      onClick={() => handleUseSuggestion(suggestion)}
+                    >
+                      <span className="line-clamp-2">{suggestion}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
             
             <div className="p-3 border-t">
               <div className="flex gap-2">
