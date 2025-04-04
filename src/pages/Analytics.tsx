@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, LineChart, PieChart } from "lucide-react";
+import { 
+  OverviewDashboard,
+  FinancialDashboard,
+  OperationalDashboard
+} from "@/components/analytics";
 
 const Analytics = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -48,47 +53,17 @@ const Analytics = () => {
                   
                   {/* Overview Tab */}
                   <TabsContent value="overview" className="space-y-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Performance Dashboard</CardTitle>
-                        <CardDescription>Key metrics at a glance</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="h-[400px] flex items-center justify-center bg-slate-50 border rounded">
-                          <p className="text-muted-foreground">Analytics dashboard will be displayed here</p>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <OverviewDashboard />
                   </TabsContent>
                   
                   {/* Financial Performance Tab */}
                   <TabsContent value="financials" className="space-y-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Revenue & Expenses</CardTitle>
-                        <CardDescription>Financial data for your properties</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="h-[400px] flex items-center justify-center bg-slate-50 border rounded">
-                          <p className="text-muted-foreground">Financial charts will be displayed here</p>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <FinancialDashboard />
                   </TabsContent>
                   
                   {/* Operational Metrics Tab */}
                   <TabsContent value="operations" className="space-y-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Operational Performance</CardTitle>
-                        <CardDescription>Metrics for property operations</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="h-[400px] flex items-center justify-center bg-slate-50 border rounded">
-                          <p className="text-muted-foreground">Operational charts will be displayed here</p>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <OperationalDashboard />
                   </TabsContent>
                 </Tabs>
               </div>
