@@ -73,30 +73,110 @@ const conversations = [
   },
 ];
 
-// Sample messages for the first conversation
-const initialMessages = [
-  {
-    id: 1,
-    sender: "guest",
-    content: "Hi there! I'm checking in tomorrow and wanted to know what's the WiFi password for the Beach Villa?",
-    time: "10:23 AM",
-    isAI: false,
-  },
-  {
-    id: 2,
-    sender: "host",
-    content: "Hello! The WiFi password is 'BeachVilla2023'. You'll also find it in the welcome booklet on the coffee table. Let me know if you need anything else!",
-    time: "10:24 AM",
-    isAI: true,
-  },
-  {
-    id: 3,
-    sender: "guest",
-    content: "Great, thank you! One more question - what's the best way to get to the property from the airport?",
-    time: "10:26 AM",
-    isAI: false,
-  },
-];
+// Sample message threads for each conversation
+const conversationMessages = {
+  1: [
+    {
+      id: 1,
+      sender: "guest",
+      content: "Hi there! I'm checking in tomorrow and wanted to know what's the WiFi password for the Beach Villa?",
+      time: "10:23 AM",
+      isAI: false,
+    },
+    {
+      id: 2,
+      sender: "host",
+      content: "Hello! The WiFi password is 'BeachVilla2023'. You'll also find it in the welcome booklet on the coffee table. Let me know if you need anything else!",
+      time: "10:24 AM",
+      isAI: true,
+    },
+    {
+      id: 3,
+      sender: "guest",
+      content: "Great, thank you! One more question - what's the best way to get to the property from the airport?",
+      time: "10:26 AM",
+      isAI: false,
+    },
+  ],
+  2: [
+    {
+      id: 1,
+      sender: "guest",
+      content: "Hello, I'm arriving tomorrow and was wondering if it's possible to check in an hour earlier? My flight lands at 1 PM.",
+      time: "9:15 AM",
+      isAI: false,
+    },
+    {
+      id: 2,
+      sender: "host",
+      content: "Hi Michael, I'll check with our cleaning staff to see if we can get the apartment ready earlier. I'll let you know as soon as possible!",
+      time: "9:20 AM",
+      isAI: false,
+    },
+    {
+      id: 3,
+      sender: "host",
+      content: "Good news! We can accommodate an early check-in at 2 PM instead of 3 PM. Will that work for you?",
+      time: "10:05 AM",
+      isAI: false,
+    },
+  ],
+  3: [
+    {
+      id: 1,
+      sender: "guest",
+      content: "Hi, we just checked in to the Mountain Cabin and the heating doesn't seem to be working properly. It's quite cold in here.",
+      time: "4:30 PM",
+      isAI: false,
+    },
+    {
+      id: 2,
+      sender: "host",
+      content: "I'm so sorry to hear that, Emma! Let me help you troubleshoot. Have you checked the thermostat settings? It's located in the hallway.",
+      time: "4:35 PM",
+      isAI: true,
+    },
+    {
+      id: 3,
+      sender: "guest",
+      content: "Yes, I've set it to 72°F but the cabin is still cold.",
+      time: "4:40 PM",
+      isAI: false,
+    },
+  ],
+  4: [
+    {
+      id: 1,
+      sender: "guest",
+      content: "Hi, I saw your Beach Villa listing and I'm interested in booking it for next month. Is it available from the 15th to the 20th?",
+      time: "2:10 PM",
+      isAI: false,
+    },
+    {
+      id: 2,
+      sender: "host",
+      content: "Hello David! Thank you for your interest in our Beach Villa. Let me check our calendar for those dates.",
+      time: "2:15 PM",
+      isAI: false,
+    },
+  ],
+  5: [
+    {
+      id: 1,
+      sender: "guest",
+      content: "Thank you for confirming our reservation! We're looking forward to our stay at the Downtown Apartment.",
+      time: "Yesterday",
+      isAI: false,
+    },
+    {
+      id: 2,
+      sender: "host",
+      content: "You're very welcome, Anna! We're excited to host you. Please let me know if you have any questions before your arrival.",
+      time: "Yesterday",
+      isAI: true,
+    },
+  ],
+};
 
 // AI suggested responses based on the context
 const suggestedResponses = {
@@ -114,42 +194,65 @@ const suggestedResponses = {
     "There are several great restaurants within walking distance. I'd recommend 'Ocean View' for seafood and 'Bella Italia' for Italian cuisine, both just 5 minutes away.",
     "The nearest grocery store is 'Market Fresh' which is a 7-minute walk from the villa. They're open daily from 7 AM to 10 PM.",
     "For entertainment, there's a movie theater and shopping mall about 15 minutes away by car. The beach is just a 3-minute walk from your door."
+  ],
+  heating: [
+    "I'll send our maintenance person over right away to check the heating system. In the meantime, there are extra blankets in the bedroom closet.",
+    "Let's try resetting the system. Please turn the thermostat off completely, wait for 5 minutes, then turn it back on and set it to your desired temperature.",
+    "I'm sorry about the heating issue. As a temporary solution, there's a space heater in the storage cabinet. I'll have a technician there first thing tomorrow morning."
+  ],
+  wifi: [
+    "The WiFi network is named 'PropertyGuest' and the password is 'Welcome2023'. If you have any trouble connecting, please restart the router located in the living room.",
+    "For WiFi access, connect to the network 'GuestAccess' using the password provided in the welcome book on the kitchen counter.",
+    "The WiFi details are: Network: PropertyConnect, Password: SecureStay1234. Let me know if you have any connectivity issues."
   ]
 };
 
 const AIMessagingCenter = () => {
   const { toast } = useToast();
   const [selectedConversation, setSelectedConversation] = useState(1);
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState(conversationMessages[1]);
   const [newMessage, setNewMessage] = useState("");
   const [platformFilter, setPlatformFilter] = useState("all");
   const [isTyping, setIsTyping] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   
+  // Update messages when selected conversation changes
+  useEffect(() => {
+    setMessages(conversationMessages[selectedConversation] || []);
+    
+    // Mark conversation as read when selected
+    const updatedConversations = conversations.map(conv => 
+      conv.id === selectedConversation ? { ...conv, unread: false } : conv
+    );
+    
+    // Analyze last guest message for AI suggestions
+    const lastGuestMessage = conversationMessages[selectedConversation]?.findLast(m => m.sender === "guest");
+    if (lastGuestMessage) {
+      analyzeMessageForSuggestions(lastGuestMessage.content);
+    } else {
+      setAiSuggestions([]);
+    }
+  }, [selectedConversation]);
+  
   // Function to detect message context and provide relevant suggestions
-  const analyzeMessageContext = (msg: string) => {
+  const analyzeMessageForSuggestions = (msg: string) => {
     const lowerMsg = msg.toLowerCase();
     
     if (lowerMsg.includes("airport") || lowerMsg.includes("transportation") || lowerMsg.includes("get to") || lowerMsg.includes("arrive")) {
-      return suggestedResponses.airport;
+      setAiSuggestions(suggestedResponses.airport);
     } else if (lowerMsg.includes("checkout") || lowerMsg.includes("leave") || lowerMsg.includes("departing")) {
-      return suggestedResponses.checkout;
+      setAiSuggestions(suggestedResponses.checkout);
     } else if (lowerMsg.includes("restaurant") || lowerMsg.includes("food") || lowerMsg.includes("eat") || lowerMsg.includes("store") || lowerMsg.includes("shop")) {
-      return suggestedResponses.nearby;
+      setAiSuggestions(suggestedResponses.nearby);
+    } else if (lowerMsg.includes("heat") || lowerMsg.includes("cold") || lowerMsg.includes("temperature")) {
+      setAiSuggestions(suggestedResponses.heating);
+    } else if (lowerMsg.includes("wifi") || lowerMsg.includes("internet") || lowerMsg.includes("password")) {
+      setAiSuggestions(suggestedResponses.wifi);
+    } else {
+      setAiSuggestions([]);
     }
-    
-    return [];
   };
-  
-  useEffect(() => {
-    // Analyze last guest message when conversation changes
-    const lastGuestMessage = [...messages].reverse().find(m => m.sender === "guest");
-    if (lastGuestMessage) {
-      const suggestions = analyzeMessageContext(lastGuestMessage.content);
-      setAiSuggestions(suggestions);
-    }
-  }, [messages, selectedConversation]);
   
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -162,7 +265,11 @@ const AIMessagingCenter = () => {
       isAI: false,
     };
     
-    setMessages([...messages, newMsg]);
+    // Update the specific conversation messages
+    const updatedMessages = [...messages, newMsg];
+    setMessages(updatedMessages);
+    conversationMessages[selectedConversation] = updatedMessages;
+    
     setNewMessage("");
     
     // Simulate guest typing and response after a delay
@@ -199,10 +306,13 @@ const AIMessagingCenter = () => {
         isAI: false,
       };
       
-      setMessages(prev => [...prev, guestMsg]);
+      // Update the specific conversation messages
+      const updatedMessages = [...messages, guestMsg];
+      setMessages(updatedMessages);
+      conversationMessages[selectedConversation] = updatedMessages;
       
       // Update AI suggestions based on the new guest message
-      setAiSuggestions(analyzeMessageContext(randomResponse));
+      analyzeMessageForSuggestions(randomResponse);
     }, responseDelay);
   };
   
@@ -211,19 +321,13 @@ const AIMessagingCenter = () => {
     
     // Simulate AI generation with a small delay
     setTimeout(() => {
-      // Get suggestions based on the latest guest message
-      const lastGuestMessage = [...messages].reverse().find(m => m.sender === "guest");
-      let suggestions = [];
-      
-      if (lastGuestMessage) {
-        suggestions = analyzeMessageContext(lastGuestMessage.content);
-      }
-      
       // If we have suggestions, use one; otherwise use a default response
-      if (suggestions.length > 0) {
-        setNewMessage(suggestions[Math.floor(Math.random() * suggestions.length)]);
+      if (aiSuggestions.length > 0) {
+        setNewMessage(aiSuggestions[Math.floor(Math.random() * aiSuggestions.length)]);
       } else {
-        setNewMessage("Thank you for your message. Is there anything else I can help you with during your stay at Beach Villa?");
+        // Get the current conversation details for a personalized default response
+        const currentConversation = conversations.find(c => c.id === selectedConversation);
+        setNewMessage(`Thank you for your message. Is there anything else I can help you with during your stay at ${currentConversation?.property || 'our property'}?`);
       }
       
       setIsGeneratingAI(false);
