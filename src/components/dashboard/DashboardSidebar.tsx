@@ -15,6 +15,7 @@ import {
   Sliders,
   CalendarDays,
   LogOut,
+  Briefcase,
 } from "lucide-react";
 import { 
   Sidebar, 
@@ -35,43 +36,49 @@ const menuItems = [
   {
     title: "Dashboard Overview",
     icon: LayoutDashboard,
-    path: "/",
+    path: "/app",
   },
   {
     title: "Sales Automation",
     icon: DollarSign,
-    path: "/dashboard/sales-automation",
+    path: "/app/sales-automation",
     description: "Pricing, channels, and marketing"
   },
   {
     title: "Bookings",
     icon: CalendarDays,
-    path: "/dashboard/bookings",
+    path: "/app/bookings",
     description: "Manage reservations and calendar"
   },
   {
     title: "Communication",
     icon: MessageSquare,
-    path: "/dashboard/communication",
+    path: "/app/communication",
     description: "AI messaging and reviews"
   },
   {
     title: "Operations",
     icon: Wrench,
-    path: "/dashboard/operations",
+    path: "/app/operations",
     description: "Cleaning and maintenance"
   },
   {
     title: "Reports & Insights",
     icon: LineChart,
-    path: "/dashboard/analytics",
+    path: "/app/analytics",
     description: "Data analytics and metrics"
   },
   {
     title: "Settings & Integrations",
     icon: Settings,
-    path: "/dashboard/settings",
+    path: "/app/settings",
     description: "Account and connections"
+  },
+  {
+    title: "Properties",
+    icon: Briefcase,
+    path: "/app/properties",
+    description: "Manage your properties"
   },
 ];
 
@@ -89,7 +96,7 @@ const DashboardSidebar = () => {
   return (
     <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border">
       <SidebarHeader className="flex h-14 items-center border-b px-4">
-        <Link to="/dashboard" className="flex items-center">
+        <Link to="/app" className="flex items-center">
           <span className="text-xl font-bold text-propcloud-600">
             PropCloud<span className="text-propcloud-400">.io</span>
           </span>
