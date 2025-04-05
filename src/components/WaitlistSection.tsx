@@ -1,10 +1,10 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { CheckCircle, ArrowRight } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const WaitlistSection = () => {
   const [email, setEmail] = useState("");
@@ -16,44 +16,25 @@ const WaitlistSection = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !name) {
-      toast({
-        title: "Missing information",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
     setIsSubmitting(true);
-    
-    // In a real implementation, this would send the data to a server or email API
+
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      console.log("Form submitted:", {
-        name,
-        email,
-        properties,
-      });
-      
-      // Show success state
-      setIsSubmitted(true);
-      
+      const { error } = await supabase
+        .from('waitlist')
+        .insert([{ email, signed_up_at: new Date().toISOString() }]);
+
+      if (error) throw error;
+
       toast({
         title: "Thank you for joining!",
-        description: "We'll be in touch soon with early access information.",
+        description: "We'll keep you updated on our launch.",
       });
-      
-      // In a real implementation, we would send this data to an API endpoint
-      // that would forward it to contact@propcloud.io
+
+      setEmail('');
     } catch (error) {
-      console.error("Error submitting form:", error);
       toast({
-        title: "Submission failed",
-        description: "Please try again later.",
+        title: "Error",
+        description: error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
     } finally {
@@ -125,7 +106,7 @@ const WaitlistSection = () => {
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
-                      "Submitting..."
+                      "Joining..."
                     ) : (
                       <>
                         Join Waitlist
