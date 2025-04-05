@@ -2,6 +2,8 @@
 create table if not exists public.waitlist (
     id uuid default uuid_generate_v4() primary key,
     email text not null unique,
+    full_name text not null,
+    number_of_properties integer,
     signed_up_at timestamp with time zone default timezone('utc'::text, now()) not null,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

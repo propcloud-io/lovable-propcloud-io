@@ -21,7 +21,12 @@ const WaitlistSection = () => {
     try {
       const { error } = await supabase
         .from('waitlist')
-        .insert([{ email, signed_up_at: new Date().toISOString() }]);
+        .insert([{
+          email,
+          full_name: name,
+          number_of_properties: properties ? parseInt(properties) : null,
+          signed_up_at: new Date().toISOString()
+        }]);
 
       if (error) throw error;
 
@@ -30,8 +35,12 @@ const WaitlistSection = () => {
         description: "We'll keep you updated on our launch.",
       });
 
+      setIsSubmitted(true);
       setEmail('');
+      setName('');
+      setProperties('');
     } catch (error) {
+      console.error('Waitlist submission error:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "An error occurred",
