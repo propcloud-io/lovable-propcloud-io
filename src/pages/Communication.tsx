@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -9,13 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { MessageSquare, Star, Settings } from "lucide-react";
+import { MessageSquare, Star, Settings, FileText } from "lucide-react";
 import DashboardWidget from "@/components/dashboard/DashboardWidget";
 
 // Import our new communication components
 import AIMessagingCenter from "@/components/communication/AIMessagingCenter";
 import ReviewManagement from "@/components/communication/ReviewManagement";
 import AIChatbotCustomization from "@/components/communication/AIChatbotCustomization";
+import { MessageTemplateEditor } from "@/components/communication/MessageTemplateEditor";
 
 const Communication = () => {
   const { toast } = useToast();
@@ -35,7 +35,7 @@ const Communication = () => {
                   <div>
                     <h1 className="text-2xl font-bold tracking-tight">Communication</h1>
                     <p className="text-muted-foreground">
-                      Manage guest messages and reviews with AI assistance
+                      Manage guest messages, templates, and reviews with AI assistance
                     </p>
                   </div>
                   <Button 
@@ -91,9 +91,12 @@ const Communication = () => {
                 )}
 
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid grid-cols-3 w-full">
+                  <TabsList className="grid grid-cols-4 w-full">
                     <TabsTrigger value="messages" className="flex items-center">
                       <MessageSquare className="h-4 w-4 mr-2" /> Guest Messages
+                    </TabsTrigger>
+                    <TabsTrigger value="templates" className="flex items-center">
+                      <FileText className="h-4 w-4 mr-2" /> Templates
                     </TabsTrigger>
                     <TabsTrigger value="reviews" className="flex items-center">
                       <Star className="h-4 w-4 mr-2" /> Reviews
@@ -106,6 +109,11 @@ const Communication = () => {
                   {/* Guest Messages Tab */}
                   <TabsContent value="messages" className="space-y-6">
                     <AIMessagingCenter />
+                  </TabsContent>
+
+                  {/* Message Templates Tab */}
+                  <TabsContent value="templates" className="space-y-6">
+                    <MessageTemplateEditor />
                   </TabsContent>
                   
                   {/* Reviews Tab */}
