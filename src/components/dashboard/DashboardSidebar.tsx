@@ -35,7 +35,7 @@ const menuItems = [
   {
     title: "Dashboard Overview",
     icon: LayoutDashboard,
-    path: "/dashboard",
+    path: "/",
   },
   {
     title: "Sales Automation",
