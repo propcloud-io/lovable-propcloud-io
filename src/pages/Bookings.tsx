@@ -7,6 +7,7 @@ import { Calendar, CheckCircle2, Clock, User, CreditCard, Loader2, Bell } from "
 import { CalendarSync } from "@/components/calendar/CalendarSync";
 import { useBookings } from "@/hooks/useBookings";
 import { useFeatureIntegration } from "@/hooks/useFeatureIntegration";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 const Bookings = () => {
   const {
@@ -239,15 +240,19 @@ const Bookings = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar />
-      <div className="flex">
-        <DashboardSidebar />
-        <div className="flex-1 p-6 pb-20 md:pb-6">
-          <div className="max-w-7xl mx-auto">
-            {renderContent()}
-          </div>
+      <SidebarProvider defaultOpen={true}>
+        <div className="flex min-h-screen w-full">
+          <DashboardSidebar />
+          <SidebarInset>
+            <DashboardNavbar />
+            <div className="p-6 pb-20 md:pb-6">
+              <div className="max-w-7xl mx-auto">
+                {renderContent()}
+              </div>
+            </div>
+          </SidebarInset>
         </div>
-      </div>
+      </SidebarProvider>
     </div>
   );
 };

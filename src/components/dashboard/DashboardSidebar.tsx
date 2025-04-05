@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -13,6 +12,7 @@ import {
   PieChart,
   Layers,
   Sliders,
+  CalendarDays,
 } from "lucide-react";
 import { 
   Sidebar, 
@@ -39,6 +39,12 @@ const menuItems = [
     icon: DollarSign,
     path: "/dashboard/sales-automation",
     description: "Pricing, channels, and marketing"
+  },
+  {
+    title: "Bookings",
+    icon: CalendarDays,
+    path: "/dashboard/bookings",
+    description: "Manage reservations and calendar"
   },
   {
     title: "Communication",
