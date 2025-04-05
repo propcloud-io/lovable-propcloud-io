@@ -1,15 +1,15 @@
 export const config = {
   // Google AI Studio API
   googleAI: {
-    apiKey: process.env.VITE_GOOGLE_AI_API_KEY || '',
-    projectId: process.env.VITE_GOOGLE_CLOUD_PROJECT_ID || '',
+    apiKey: import.meta.env.VITE_GOOGLE_AI_API_KEY || '',
+    projectId: import.meta.env.VITE_GOOGLE_CLOUD_PROJECT_ID || '',
   },
   
   // WhatsApp API (Meta)
   whatsapp: {
-    apiKey: process.env.VITE_WHATSAPP_API_KEY || '',
-    phoneNumberId: process.env.VITE_WHATSAPP_PHONE_NUMBER_ID || '',
-    businessAccountId: process.env.VITE_WHATSAPP_BUSINESS_ACCOUNT_ID || '',
+    apiKey: import.meta.env.VITE_WHATSAPP_API_KEY || '',
+    phoneNumberId: import.meta.env.VITE_WHATSAPP_PHONE_NUMBER_ID || '',
+    businessAccountId: import.meta.env.VITE_WHATSAPP_BUSINESS_ACCOUNT_ID || '',
   },
 
   // Feature flags for development
