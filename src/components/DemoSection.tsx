@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, DollarSign, Calendar } from "lucide-react";
 
@@ -91,7 +90,6 @@ const DemoSection = () => {
                           <span className="text-sm font-medium">Secure Payment Link Created</span>
                           <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Automatic</span>
                         </div>
-                        <Button size="sm" className="w-full">Preview Payment Link</Button>
                       </div>
                     </div>
                   </div>
@@ -132,10 +130,6 @@ const DemoSection = () => {
                       </div>
                     </li>
                   </ul>
-                  
-                  <Button className="mt-6" onClick={() => window.location.href = "/dashboard/sales-automation"}>
-                    Try Sales Automation Demo
-                  </Button>
                 </div>
               </div>
             </TabsContent>
@@ -190,9 +184,6 @@ const DemoSection = () => {
                       <span>Trained on your properties and preferences</span>
                     </li>
                   </ul>
-                  <Button className="mt-6" onClick={() => window.location.href = "/dashboard/communication"}>
-                    Try Communication Demo
-                  </Button>
                 </div>
               </div>
             </TabsContent>
@@ -273,9 +264,6 @@ const DemoSection = () => {
                       <span>Quality control checklists and photo verification</span>
                     </li>
                   </ul>
-                  <Button className="mt-6" onClick={() => window.location.href = "/dashboard/operations"}>
-                    Try Operations Demo
-                  </Button>
                 </div>
               </div>
             </TabsContent>
