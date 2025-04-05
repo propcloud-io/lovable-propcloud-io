@@ -20,11 +20,12 @@ const LoginForm = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Pre-filled credentials for easy login
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "contact@propcloud.io",
+      password: "admin123",
     },
   });
 
@@ -34,7 +35,7 @@ const LoginForm = () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    if (values.email === 'contact@propcloud' && values.password === 'admin123') {
+    if (values.email === 'contact@propcloud.io' && values.password === 'admin123') {
       toast({
         title: "Login successful",
         description: "Welcome to PropCloud dashboard",
@@ -96,11 +97,6 @@ const LoginForm = () => {
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex flex-col items-center">
-        <p className="text-sm text-muted-foreground mt-4">
-          For demo purposes only. No actual authentication is implemented.
-        </p>
-      </CardFooter>
     </Card>
   );
 };
