@@ -1,6 +1,7 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
   MessageSquare,
@@ -13,6 +14,7 @@ import {
   Layers,
   Sliders,
   CalendarDays,
+  LogOut,
 } from "lucide-react";
 import { 
   Sidebar, 
@@ -27,6 +29,7 @@ import {
   SidebarMenuButton,
   SidebarProvider
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
   {
@@ -74,8 +77,15 @@ const menuItems = [
 
 const DashboardSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error logging out:", error);
+    }
+  };
   
-  // This component already has access to the SidebarProvider context from parent components
   return (
     <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border">
       <SidebarHeader className="flex h-14 items-center border-b px-4">
@@ -108,7 +118,7 @@ const DashboardSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t p-4">
+      <SidebarFooter className="border-t p-4 space-y-2">
         <Link
           to="#"
           className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
@@ -119,6 +129,14 @@ const DashboardSidebar = () => {
           <Layers className="mr-3 h-5 w-5" />
           <span>Help & Resources</span>
         </Link>
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-muted-foreground hover:bg-muted hover:text-foreground"
+          onClick={handleLogout}
+        >
+          <LogOut className="mr-3 h-5 w-5" />
+          <span>Logout</span>
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );
