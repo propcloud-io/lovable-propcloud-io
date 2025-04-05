@@ -67,4 +67,38 @@ $$;
 -- Trigger to automatically create profile on user creation
 create or replace trigger on_auth_user_created
     after insert on auth.users
-    for each row execute procedure public.handle_new_user(); 
+    for each row execute procedure public.handle_new_user();
+
+-- Function to send email notification for new waitlist signups
+create or replace function public.handle_new_waitlist_signup()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+    perform net.send_email(
+        from_email := 'noreply@propcloud.io',
+        to_email := 'contact@propcloud.io',
+        subject := 'New Waitlist Signup',
+        body := format(
+            'New waitlist signup received:
+            
+Name: %s
+Email: %s
+Number of Properties: %s
+Signed up at: %s',
+            new.full_name,
+            new.email,
+            coalesce(new.number_of_properties::text, 'Not specified'),
+            new.signed_up_at
+        )
+    );
+    return new;
+end;
+$$;
+
+-- Create trigger for new waitlist signups
+create trigger on_new_waitlist_signup
+    after insert on public.waitlist
+    for each row
+    execute procedure public.handle_new_waitlist_signup(); 
