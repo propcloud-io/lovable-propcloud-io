@@ -14,6 +14,7 @@ import Footer from "@/components/Footer";
 
 // Authenticated Dashboard Components & Types
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -206,12 +207,14 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       {session ? (
         // --- Authenticated View ---
-        <div className="flex flex-1">
-          <DashboardSidebar />
-          <main className="flex-1 p-6 bg-slate-50"> {/* Add padding and background */}
-            <AuthenticatedDashboard />
-          </main>
-        </div>
+        <SidebarProvider>
+          <div className="flex flex-1">
+            <DashboardSidebar />
+            <main className="flex-1 p-6 bg-slate-50"> {/* Add padding and background */}
+              <AuthenticatedDashboard />
+            </main>
+          </div>
+        </SidebarProvider>
       ) : (
         // --- Public Landing Page View ---
         <>
