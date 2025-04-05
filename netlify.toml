@@ -1,0 +1,11 @@
+# Netlify build settings (optional but good practice)
+[build]
+  command = "npm run build" # Or your actual build command
+  publish = "dist"          # Your vite output directory
+  environment = { VITE_SUPABASE_URL = "${VITE_SUPABASE_URL}", VITE_SUPABASE_ANON_KEY = "${VITE_SUPABASE_ANON_KEY}" }
+
+# SPA redirect rule
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
