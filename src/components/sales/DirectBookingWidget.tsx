@@ -1,120 +1,155 @@
 
-import React from 'react';
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  ArrowRight, 
-  MessageSquare, 
-  Instagram, 
-  Facebook,
-  Clock
-} from "lucide-react";
-
-const conversations = [
-  {
-    id: 1,
-    platform: "Instagram",
-    user: "traveler_jane",
-    message: "Hi! Is your Beach Villa available next weekend? Looking for a place for 4 people.",
-    time: "2 hours ago",
-    status: "new"
-  },
-  {
-    id: 2,
-    platform: "Facebook",
-    user: "john_smith",
-    message: "What's the price for a 5-night stay at the Downtown Apartment in July?",
-    time: "Yesterday",
-    status: "responded"
-  },
-  {
-    id: 3,
-    platform: "Instagram",
-    user: "vacation_planner22",
-    message: "Do you have any special rates for long-term stays (3+ weeks)?",
-    time: "2 days ago",
-    status: "booked"
-  }
-];
+import { MessageSquare, Instagram, Facebook, Sparkles, Calendar, CheckCircle } from "lucide-react";
 
 const DirectBookingWidget = () => {
   const { toast } = useToast();
+  const [enabledChannels, setEnabledChannels] = useState({
+    instagram: true,
+    facebook: true,
+    whatsapp: false,
+  });
   
-  const handleSwitchAutoResponder = (checked: boolean) => {
+  const [recentInquiries, setRecentInquiries] = useState([
+    { 
+      id: 1, 
+      guest: "Michael Smith", 
+      platform: "instagram", 
+      property: "Beach House", 
+      dates: "Jul 15-20",
+      status: "pending",
+      time: "2h ago"
+    },
+    { 
+      id: 2, 
+      guest: "Sarah Johnson", 
+      platform: "facebook", 
+      property: "Mountain Cabin", 
+      dates: "Jun 10-12",
+      status: "confirmed",
+      time: "Yesterday"
+    },
+  ]);
+  
+  const handleToggleChannel = (channel: keyof typeof enabledChannels) => {
+    setEnabledChannels({
+      ...enabledChannels,
+      [channel]: !enabledChannels[channel]
+    });
+    
     toast({
-      title: checked ? "AI Auto-Responder Activated" : "AI Auto-Responder Deactivated",
-      description: checked 
-        ? "The AI will now automatically respond to booking inquiries" 
-        : "You will need to manually respond to booking inquiries"
+      title: enabledChannels[channel] ? `${channel} Disabled` : `${channel} Enabled`,
+      description: enabledChannels[channel] 
+        ? `Direct booking via ${channel} is now disabled` 
+        : `Direct booking via ${channel} is now enabled`
     });
   };
-
-  const handleViewConversation = (id: number) => {
+  
+  const handleAcceptBooking = (id: number) => {
+    setRecentInquiries(recentInquiries.map(inquiry => 
+      inquiry.id === id ? { ...inquiry, status: "confirmed" } : inquiry
+    ));
+    
     toast({
-      title: "Opening Conversation",
-      description: "Viewing conversation details"
+      title: "Booking Confirmed",
+      description: "The booking has been confirmed and the guest has been notified",
     });
   };
   
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-sm font-medium">Social Booking Inquiries</h3>
-        <div className="flex items-center space-x-2">
-          <Switch id="ai-responder" onCheckedChange={handleSwitchAutoResponder} defaultChecked />
-          <Label htmlFor="ai-responder" className="text-xs">AI Auto-Responder</Label>
-        </div>
-      </div>
-      
-      <div className="flex items-center justify-between bg-green-50 p-2 rounded-lg border border-green-100">
+      <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-2">
-            <MessageSquare className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-green-800">AI Auto-Response Enabled</p>
-            <p className="text-xs text-green-600">Responding within 2 minutes on average</p>
-          </div>
+          <Sparkles className="h-4 w-4 text-amber-500 mr-2" />
+          <h3 className="text-sm font-medium">Direct Booking via Social</h3>
         </div>
-        <Button variant="outline" size="sm" className="border-green-200 text-green-700 bg-green-50 hover:bg-green-100">
-          Configure
-        </Button>
       </div>
       
       <div className="space-y-3">
-        {conversations.map((convo) => (
-          <Card key={convo.id} className="overflow-hidden">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Instagram className="h-4 w-4 text-pink-500" />
+            <span className="text-sm">Instagram DM</span>
+          </div>
+          <Switch 
+            checked={enabledChannels.instagram}
+            onCheckedChange={() => handleToggleChannel('instagram')}
+          />
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Facebook className="h-4 w-4 text-blue-600" />
+            <span className="text-sm">Facebook Messenger</span>
+          </div>
+          <Switch 
+            checked={enabledChannels.facebook}
+            onCheckedChange={() => handleToggleChannel('facebook')}
+          />
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <MessageSquare className="h-4 w-4 text-green-500" />
+            <span className="text-sm">WhatsApp</span>
+            <Badge variant="outline" className="text-xs ml-1">Coming Soon</Badge>
+          </div>
+          <Switch 
+            checked={enabledChannels.whatsapp}
+            onCheckedChange={() => handleToggleChannel('whatsapp')}
+            disabled
+          />
+        </div>
+      </div>
+      
+      <div className="space-y-3 pt-2">
+        <h4 className="text-xs text-muted-foreground font-medium">Recent Booking Inquiries</h4>
+        
+        {recentInquiries.map((inquiry) => (
+          <Card key={inquiry.id} className="overflow-hidden">
             <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center 
-                    ${convo.platform === 'Instagram' 
-                      ? 'bg-purple-100 text-purple-600' 
-                      : 'bg-blue-100 text-blue-600'}`}
-                  >
-                    {convo.platform === 'Instagram' ? <Instagram className="h-4 w-4" /> : <Facebook className="h-4 w-4" />}
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="flex items-center">
+                    <p className="text-sm font-medium">{inquiry.guest}</p>
+                    <Badge variant="outline" className={`text-xs ml-2 ${
+                      inquiry.platform === 'instagram' ? 'bg-pink-50 text-pink-700' : 
+                      inquiry.platform === 'facebook' ? 'bg-blue-50 text-blue-700' :
+                      'bg-green-50 text-green-700'
+                    }`}>
+                      {inquiry.platform.charAt(0).toUpperCase() + inquiry.platform.slice(1)}
+                    </Badge>
                   </div>
-                  <div>
-                    <p className="font-medium text-sm">{convo.user}</p>
-                    <p className="text-xs text-muted-foreground truncate max-w-[180px]">{convo.message}</p>
+                  <div className="flex items-center mt-1 gap-1">
+                    <span className="text-xs text-muted-foreground">{inquiry.property}</span>
+                    <span className="text-xs text-muted-foreground">•</span>
+                    <div className="flex items-center">
+                      <Calendar className="h-3 w-3 text-muted-foreground mr-1" />
+                      <span className="text-xs">{inquiry.dates}</span>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex flex-col items-end space-y-1">
-                  <Badge variant={
-                    convo.status === "new" ? "default" : 
-                    convo.status === "responded" ? "outline" : "secondary"
-                  } className="text-xs">
-                    {convo.status === "new" ? "New" : 
-                     convo.status === "responded" ? "Responded" : "Booked"}
-                  </Badge>
-                  <span className="text-xs flex items-center text-muted-foreground">
-                    <Clock className="h-3 w-3 mr-1" /> {convo.time}
-                  </span>
+                <div className="flex flex-col items-end">
+                  <span className="text-xs text-muted-foreground">{inquiry.time}</span>
+                  {inquiry.status === "pending" ? (
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleAcceptBooking(inquiry.id)}
+                      className="mt-1 h-7 text-xs"
+                    >
+                      Accept
+                    </Button>
+                  ) : (
+                    <Badge className="bg-green-100 text-green-800 border-0 mt-1">
+                      <CheckCircle className="h-3 w-3 mr-1" /> Confirmed
+                    </Badge>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -122,17 +157,9 @@ const DirectBookingWidget = () => {
         ))}
       </div>
       
-      <div className="flex justify-between">
-        <Button variant="outline" size="sm">View All Inquiries</Button>
-        <Button size="sm" onClick={() => {
-          toast({
-            title: "Setting Up Direct Booking",
-            description: "Opening direct booking configuration"
-          });
-        }}>
-          Configure Direct Booking <ArrowRight className="ml-1 h-3 w-3" />
-        </Button>
-      </div>
+      <Button variant="outline" size="sm" className="w-full">
+        View All Booking Inquiries
+      </Button>
     </div>
   );
 };

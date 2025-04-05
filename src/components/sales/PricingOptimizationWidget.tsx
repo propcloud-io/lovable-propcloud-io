@@ -1,195 +1,168 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Toggle } from "@/components/ui/toggle";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Calendar,
-  TrendingUp,
-  ArrowUp,
-  ArrowDown,
-  Info,
-  DollarSign,
-  Check
-} from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
-} from 'recharts';
-
-// Sample data for charts
-const pricingData = [
-  { date: "Jun 01", current: 189, recommended: 219, competitors: 199 },
-  { date: "Jun 02", current: 189, recommended: 219, competitors: 199 },
-  { date: "Jun 03", current: 189, recommended: 209, competitors: 199 },
-  { date: "Jun 04", current: 189, recommended: 229, competitors: 209 },
-  { date: "Jun 05", current: 239, recommended: 259, competitors: 249 },
-  { date: "Jun 06", current: 239, recommended: 279, competitors: 259 },
-  { date: "Jun 07", current: 219, recommended: 249, competitors: 229 },
-  { date: "Jun 08", current: 189, recommended: 209, competitors: 199 },
-  { date: "Jun 09", current: 189, recommended: 199, competitors: 189 },
-  { date: "Jun 10", current: 179, recommended: 199, competitors: 189 },
-  { date: "Jun 11", current: 189, recommended: 209, competitors: 199 },
-  { date: "Jun 12", current: 239, recommended: 269, competitors: 249 },
-  { date: "Jun 13", current: 239, recommended: 279, competitors: 259 },
-  { date: "Jun 14", current: 219, recommended: 239, competitors: 229 },
-];
-
-const pricingFactors = [
-  { name: "Local Events", impact: "+15%", description: "Major concert in town June 15-17" },
-  { name: "Seasonal Demand", impact: "+10%", description: "Peak summer travel season" },
-  { name: "Competitor Pricing", impact: "+5%", description: "Similar properties raising rates" },
-  { name: "Day of Week", impact: "+20%", description: "Weekend premium applied" },
-];
+import { Sparkles, TrendingUp, CalendarDays, DollarSign, BarChart } from "lucide-react";
 
 const PricingOptimizationWidget = () => {
   const { toast } = useToast();
-  const [timeFrame, setTimeFrame] = useState("14d");
+  const [aiEnabled, setAiEnabled] = useState(true);
+  const [priceRange, setPriceRange] = useState([50, 250]);
   
-  const handleApplyRecommendations = () => {
+  // Suggested price increases based on simulated market conditions
+  const suggestions = [
+    { 
+      dates: "June 15-20", 
+      currentPrice: "$179/night", 
+      suggestedPrice: "$219/night", 
+      reason: "Local festival", 
+      increase: "+22%",
+      accepted: false
+    },
+    { 
+      dates: "July 4-6", 
+      currentPrice: "$179/night", 
+      suggestedPrice: "$249/night", 
+      reason: "Holiday weekend", 
+      increase: "+39%",
+      accepted: true
+    },
+    { 
+      dates: "July 10-12", 
+      currentPrice: "$179/night", 
+      suggestedPrice: "$199/night", 
+      reason: "Competitor price increase", 
+      increase: "+11%",
+      accepted: false
+    },
+  ];
+  
+  const handleAcceptSuggestion = (index: number) => {
     toast({
-      title: "Recommended Pricing Applied",
-      description: "Your pricing has been updated based on AI recommendations"
+      title: "Price Updated",
+      description: `Price for ${suggestions[index].dates} has been updated to ${suggestions[index].suggestedPrice}`,
+    });
+    
+    suggestions[index].accepted = true;
+  };
+  
+  const handleToggleAI = () => {
+    setAiEnabled(!aiEnabled);
+    
+    toast({
+      title: aiEnabled ? "AI Pricing Disabled" : "AI Pricing Enabled",
+      description: aiEnabled 
+        ? "You will need to set prices manually" 
+        : "PropCloud AI will now suggest optimal pricing",
     });
   };
   
   return (
     <div className="space-y-4">
-      <Tabs defaultValue="chart">
-        <div className="flex items-center justify-between mb-3">
-          <TabsList>
-            <TabsTrigger value="chart">Price Chart</TabsTrigger>
-            <TabsTrigger value="factors">Factors</TabsTrigger>
-          </TabsList>
-          <div className="flex items-center gap-2">
-            <TabsList>
-              <TabsTrigger value="7d" onClick={() => setTimeFrame("7d")}>7D</TabsTrigger>
-              <TabsTrigger value="14d" onClick={() => setTimeFrame("14d")}>14D</TabsTrigger>
-              <TabsTrigger value="30d" onClick={() => setTimeFrame("30d")}>30D</TabsTrigger>
-            </TabsList>
-          </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <Sparkles className="h-4 w-4 text-amber-500 mr-2" />
+          <h3 className="text-sm font-medium">AI Price Optimization</h3>
         </div>
-        
-        <TabsContent value="chart" className="space-y-4">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={pricingData}
-                margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="date" />
-                <YAxis domain={['auto', 'auto']} />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="current"
-                  stroke="#94a3b8"
-                  name="Current Price"
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="recommended"
-                  stroke="#7c3aed"
-                  name="AI Recommended"
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="competitors"
-                  stroke="#64748b"
-                  strokeDasharray="5 5"
-                  name="Competitors Avg"
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+        <div className="flex items-center space-x-2">
+          <span className="text-xs text-muted-foreground mr-1">
+            {aiEnabled ? "Enabled" : "Disabled"}
+          </span>
+          <Switch 
+            checked={aiEnabled} 
+            onCheckedChange={handleToggleAI}
+          />
+        </div>
+      </div>
+      
+      {aiEnabled && (
+        <>
+          <div className="space-y-6">
+            <div>
+              <div className="flex justify-between mb-2">
+                <Label className="text-xs">Price Range ($/night)</Label>
+                <span className="text-xs font-medium">${priceRange[0]} - ${priceRange[1]}</span>
+              </div>
+              <Slider 
+                value={priceRange}
+                min={50}
+                max={500}
+                step={5}
+                onValueChange={setPriceRange}
+              />
+            </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-3">
-            <Card>
-              <CardContent className="p-3">
-                <div className="flex flex-col items-center">
-                  <div className="text-xs text-muted-foreground mb-1">Average Gap</div>
-                  <div className="text-lg font-bold text-green-600 flex items-center">
-                    +$30 <TrendingUp className="h-3 w-3 ml-1" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-3">
-                <div className="flex flex-col items-center">
-                  <div className="text-xs text-muted-foreground mb-1">Potential Revenue</div>
-                  <div className="text-lg font-bold text-purple-600">+18%</div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-3">
-                <div className="flex flex-col items-center">
-                  <div className="text-xs text-muted-foreground mb-1">Occupancy Impact</div>
-                  <div className="text-lg font-bold text-amber-600">-2%</div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="factors">
           <div className="space-y-3">
-            {pricingFactors.map((factor, index) => (
+            <h4 className="text-xs text-muted-foreground font-medium">Price Suggestions</h4>
+            
+            {suggestions.map((suggestion, index) => (
               <Card key={index} className="overflow-hidden">
                 <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-slate-100 text-slate-700 rounded-md p-2">
-                        <Info className="h-4 w-4" />
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="flex items-center gap-1">
+                        <CalendarDays className="h-3 w-3 text-muted-foreground" />
+                        <p className="text-xs font-medium">{suggestion.dates}</p>
                       </div>
-                      <div>
-                        <p className="font-medium text-sm">{factor.name}</p>
-                        <p className="text-xs text-muted-foreground">{factor.description}</p>
+                      <div className="flex items-center mt-1 gap-1">
+                        <Badge variant="outline" className="text-xs">
+                          {suggestion.reason}
+                        </Badge>
+                        <Badge className="bg-green-100 text-green-800 text-xs border-0">
+                          {suggestion.increase}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center mt-2">
+                        <span className="text-xs text-muted-foreground line-through mr-2">
+                          {suggestion.currentPrice}
+                        </span>
+                        <span className="text-sm font-bold">
+                          {suggestion.suggestedPrice}
+                        </span>
                       </div>
                     </div>
-                    <Badge variant={factor.impact.includes('+') ? "default" : "outline"}>
-                      {factor.impact}
-                    </Badge>
+                    <Button 
+                      size="sm" 
+                      variant={suggestion.accepted ? "outline" : "default"}
+                      onClick={() => handleAcceptSuggestion(index)}
+                      disabled={suggestion.accepted}
+                      className="h-7 text-xs"
+                    >
+                      {suggestion.accepted ? "Applied" : "Apply"}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             ))}
-            
-            <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
-              <div className="flex items-start">
-                <Calendar className="h-4 w-4 text-amber-500 mt-0.5 mr-2" />
-                <div>
-                  <p className="text-sm font-medium text-amber-800">Special Event Detected</p>
-                  <p className="text-xs text-amber-700">Summer Music Festival (June 15-17) is driving higher demand in your area</p>
-                </div>
-              </div>
-            </div>
           </div>
-        </TabsContent>
-      </Tabs>
+          
+          <Button variant="outline" size="sm" className="w-full mt-2">
+            <BarChart className="h-3.5 w-3.5 mr-2" />
+            View All Price Suggestions
+          </Button>
+        </>
+      )}
       
-      <div className="flex flex-col sm:flex-row justify-between pt-2 gap-2">
-        <Button variant="outline" size="sm" className="text-xs">
-          <DollarSign className="h-3 w-3 mr-1" /> Customize Rules
-        </Button>
-        <Button size="sm" className="text-xs" onClick={handleApplyRecommendations}>
-          <Check className="h-3 w-3 mr-1" /> Apply Recommendations
-        </Button>
-      </div>
+      {!aiEnabled && (
+        <div className="py-6 text-center">
+          <DollarSign className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+          <h3 className="text-sm font-medium mb-1">AI Pricing Disabled</h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            Enable AI pricing to receive smart price suggestions
+          </p>
+          <Button size="sm" onClick={handleToggleAI}>
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Enable AI Pricing
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
