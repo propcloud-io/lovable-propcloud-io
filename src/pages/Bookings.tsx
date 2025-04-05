@@ -96,10 +96,10 @@ const Bookings = () => {
 
   const renderContent = () => {
     if (isLoading) {
-      return (
+  return (
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
+                    </div>
       );
     }
 
@@ -110,9 +110,9 @@ const Bookings = () => {
             <div className="flex items-center gap-2 text-red-500">
               <CheckCircle2 className="h-5 w-5" />
               <p>Error: {error.message}</p>
-            </div>
-          </CardContent>
-        </Card>
+                  </div>
+                </CardContent>
+              </Card>
       );
     }
 
@@ -125,32 +125,32 @@ const Bookings = () => {
               <Bell className="h-4 w-4" />
               <span>{notifications.length} notifications</span>
             </div>
-          </div>
+                                </div>
           <Button>
             <Calendar className="h-4 w-4 mr-2" />
             New Booking
-          </Button>
-        </div>
+                                  </Button>
+                                </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
+                  <Card>
+                    <CardHeader>
               <CardTitle>Upcoming Bookings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
                 {bookings.map(booking => (
                   <div
                     key={booking.id}
                     className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <div>
+                            <div>
                         <h3 className="font-medium">{booking.propertyName}</h3>
                         <p className="text-sm text-muted-foreground">{booking.guestName}</p>
                       </div>
                       {renderStatusBadge(booking.status)}
-                    </div>
+                            </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm">
                         <Clock className="h-4 w-4 text-muted-foreground" />
@@ -167,46 +167,46 @@ const Bookings = () => {
                         {renderPaymentStatus(booking.paymentStatus)}
                       </div>
                       <div className="flex gap-2 mt-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
+                              <Button 
+                                variant="outline"
+                                size="sm"
                           onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
                           disabled={booking.status === 'confirmed'}
                         >
                           Confirm
-                        </Button>
-                        <Button
+                              </Button>
+                              <Button 
                           variant="outline"
-                          size="sm"
+                                size="sm"
                           onClick={() => handlePaymentUpdate(booking.id, 'paid')}
                           disabled={booking.paymentStatus === 'paid'}
                         >
                           Mark as Paid
-                        </Button>
-                        <Button
+                                  </Button>
+                                  <Button 
                           variant="destructive"
-                          size="sm"
+                                    size="sm"
                           onClick={() => handleCancel(booking.id)}
                           disabled={booking.status === 'cancelled'}
                         >
                           Cancel
-                        </Button>
+                              </Button>
                       </div>
                     </div>
-                  </div>
+                      </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-          <Card>
-            <CardHeader>
+                  <Card>
+                    <CardHeader>
               <CardTitle>Calendar Sync</CardTitle>
-            </CardHeader>
-            <CardContent>
+                    </CardHeader>
+                    <CardContent>
               <CalendarSync />
-            </CardContent>
-          </Card>
+                    </CardContent>
+                  </Card>
         </div>
 
         <Card>
@@ -218,7 +218,7 @@ const Bookings = () => {
               <div className="p-4 border rounded-lg">
                 <div className="text-2xl font-bold">{stats?.totalBookings || 0}</div>
                 <div className="text-sm text-muted-foreground">Total Bookings</div>
-              </div>
+                </div>
               <div className="p-4 border rounded-lg">
                 <div className="text-2xl font-bold">{stats?.occupancyRate || 0}%</div>
                 <div className="text-sm text-muted-foreground">Occupancy Rate</div>
@@ -231,10 +231,10 @@ const Bookings = () => {
                 <div className="text-2xl font-bold">{stats?.averageRating || 0}</div>
                 <div className="text-sm text-muted-foreground">Average Rating</div>
               </div>
-            </div>
+                </div>
           </CardContent>
         </Card>
-      </div>
+                </div>
     );
   };
 
