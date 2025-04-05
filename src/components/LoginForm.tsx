@@ -24,7 +24,7 @@ const LoginForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "contact@propcloud",
+      email: "contact@propcloud.io",
       password: "admin123",
     },
   });
@@ -35,7 +35,7 @@ const LoginForm = () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    if (values.email === 'contact@propcloud' && values.password === 'admin123') {
+    if (values.email === 'contact@propcloud.io' && values.password === 'admin123') {
       toast({
         title: "Login successful",
         description: "Welcome to PropCloud dashboard",
