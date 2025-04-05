@@ -96,11 +96,6 @@ const LoginForm = () => {
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex flex-col items-center">
-        <p className="text-sm text-muted-foreground mt-4">
-          For demo purposes only. No actual authentication is implemented.
-        </p>
-      </CardFooter>
     </Card>
   );
 };
