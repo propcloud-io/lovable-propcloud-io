@@ -31,15 +31,25 @@ const LoginForm = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
+    console.log('Attempting login with:', values.email); // Debug log
     
     try {
       await signIn(values.email, values.password);
+      console.log('Sign in successful'); // Debug log
       navigate('/dashboard');
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('Login error details:', error); // Detailed error log
+      
+      let errorMessage = "An error occurred during login";
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.error_description) {
+        errorMessage = error.error_description;
+      }
+      
       toast({
         title: "Login Failed",
-        description: error.message || "Invalid email or password",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

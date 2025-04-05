@@ -21,12 +21,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session ? 'Session found' : 'No session'); // Debug log
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
     // Listen for changes on auth state
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('Auth state changed:', _event, session ? 'Session exists' : 'No session'); // Debug log
       setUser(session?.user ?? null);
     });
 
@@ -35,21 +37,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Attempting to sign in with Supabase...'); // Debug log
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      console.log('Sign in response:', { data, error }); // Debug log
+
+      if (error) {
+        console.error('Supabase auth error:', error); // Debug log
+        throw error;
+      }
+
+      if (!data.user || !data.session) {
+        throw new Error('No user data received from authentication');
+      }
 
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in.",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Detailed sign in error:', error); // Debug log
       toast({
         title: "Error signing in",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description: error.message || "An error occurred during sign in",
         variant: "destructive",
       });
       throw error;
@@ -58,10 +71,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      console.log('Attempting to sign up with Supabase...'); // Debug log
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
+
+      console.log('Sign up response:', { data, error }); // Debug log
 
       if (error) throw error;
 
@@ -69,10 +85,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Welcome to PropCloud!",
         description: "Please check your email to verify your account.",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Detailed sign up error:', error); // Debug log
       toast({
         title: "Error signing up",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description: error.message || "An error occurred during sign up",
         variant: "destructive",
       });
       throw error;
@@ -88,10 +105,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error signing out",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description: error.message || "An error occurred during sign out",
         variant: "destructive",
       });
       throw error;
