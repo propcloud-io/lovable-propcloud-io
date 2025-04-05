@@ -20,11 +20,12 @@ const LoginForm = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Pre-filled credentials for easy login
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "contact@propcloud",
+      password: "admin123",
     },
   });
 
