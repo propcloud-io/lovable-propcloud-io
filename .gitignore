@@ -26,3 +26,6 @@ dist-ssr
 # Firebase Functions credentials
 functions/service-account.json
 functions/.env
+
+# GCP credentials
+/src/config/credentials/
