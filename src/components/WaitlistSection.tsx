@@ -17,13 +17,16 @@ const WaitlistSection = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    console.log('Submitting waitlist form with:', { email, name, properties });
 
     try {
+      console.log('Calling WaitlistService.addToWaitlist');
       await WaitlistService.addToWaitlist({
         email,
         fullName: name,
         numberOfProperties: properties ? parseInt(properties) : undefined
       });
+      console.log('Successfully added to waitlist');
 
       toast({
         title: "Thank you for joining!",
@@ -36,6 +39,14 @@ const WaitlistSection = () => {
       setProperties('');
     } catch (error) {
       console.error('Waitlist submission error:', error);
+      // Log more details about the error
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      } else {
+        console.error('Unknown error type:', typeof error);
+      }
+
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "An error occurred",
