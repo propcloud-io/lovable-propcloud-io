@@ -1,91 +1,44 @@
+
 import { db } from '../config';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp, orderBy, limit, startAfter } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp, getDoc } from 'firebase/firestore';
+
+export interface PropertyAddress {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
 
 export interface Property {
   id?: string;
+  ownerId: string;
   type: string;
-  status: string;
+  address: PropertyAddress;
   basePrice: number;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zip: string;
-    country: string;
-  };
   amenities: string[];
-  description: string;
-  images: string[];
-  createdAt?: Date;
-  updatedAt?: Date;
+  maxGuests: number;
+  bedrooms: number;
+  bathrooms: number;
+  squareFootage: number;
+  photos?: string[];
+  description?: string;
+  createdAt?: any;
+  updatedAt?: any;
 }
-
-export enum PropertyStatus {
-  ACTIVE,
-  INACTIVE
-}
-
-const COLLECTION = 'properties';
 
 export class PropertyService {
-  // Get all properties with pagination
-  static async getProperties(pageSize = 10, lastDoc?: any) {
-    try {
-      let q = query(
-        collection(db, COLLECTION),
-        orderBy('createdAt', 'desc'),
-        limit(pageSize)
-      );
+  private static collection = 'properties';
 
-      if (lastDoc) {
-        q = query(q, startAfter(lastDoc));
-      }
-
-      const snapshot = await getDocs(q);
-      return {
-        properties: snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as Property)),
-        lastDoc: snapshot.docs[snapshot.docs.length - 1]
-      };
-    } catch (error) {
-      console.error('Error getting properties:', error);
-      throw error;
-    }
-  }
-
-  // Get a single property by ID
-  static async getProperty(id: string) {
-    try {
-      const docRef = doc(db, COLLECTION, id);
-      const docSnap = await getDoc(docRef);
-      
-      if (!docSnap.exists()) {
-        throw new Error('Property not found');
-      }
-
-      return {
-        id: docSnap.id,
-        ...docSnap.data()
-      } as Property;
-    } catch (error) {
-      console.error('Error getting property:', error);
-      throw error;
-    }
-  }
-
-  // Create a new property
   static async createProperty(property: Omit<Property, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ id: string }> {
     try {
       const propertyData = {
         ...property,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        status: property.status || PropertyStatus.ACTIVE
+        updatedAt: serverTimestamp()
       };
 
-      const docRef = await addDoc(collection(db, COLLECTION), propertyData);
+      const docRef = await addDoc(collection(db, this.collection), propertyData);
       return { id: docRef.id };
     } catch (error) {
       console.error('Error creating property:', error);
@@ -93,64 +46,27 @@ export class PropertyService {
     }
   }
 
-  // Update a property
-  static async updateProperty(id: string, updates: Partial<Property>): Promise<void> {
+  static async getPropertyById(id: string): Promise<Property> {
     try {
-      const docRef = doc(db, COLLECTION, id);
-      await updateDoc(docRef, {
-        ...updates,
-        updatedAt: serverTimestamp()
-      });
-    } catch (error) {
-      console.error('Error updating property:', error);
-      throw new Error('Failed to update property');
-    }
-  }
-
-  // Delete a property
-  static async deleteProperty(id: string): Promise<void> {
-    try {
-      const docRef = doc(db, COLLECTION, id);
-      await deleteDoc(docRef);
-    } catch (error) {
-      console.error('Error deleting property:', error);
-      throw new Error('Failed to delete property');
-    }
-  }
-
-  // Get properties by owner
-  static async getPropertiesByOwner(ownerId: string, pageSize = 10, lastDoc?: any) {
-    try {
-      let q = query(
-        collection(db, COLLECTION),
-        where('ownerId', '==', ownerId),
-        orderBy('createdAt', 'desc'),
-        limit(pageSize)
-      );
-
-      if (lastDoc) {
-        q = query(q, startAfter(lastDoc));
+      const docRef = doc(db, this.collection, id);
+      const docSnap = await getDoc(docRef);
+      
+      if (!docSnap.exists()) {
+        throw new Error('Property not found');
       }
 
-      const snapshot = await getDocs(q);
-      return {
-        properties: snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as Property)),
-        lastDoc: snapshot.docs[snapshot.docs.length - 1]
-      };
+      return { id: docSnap.id, ...docSnap.data() } as Property;
     } catch (error) {
-      console.error('Error getting properties by owner:', error);
+      console.error('Error getting property:', error);
       throw error;
     }
   }
 
-  static async getProperties(userId: string): Promise<Property[]> {
+  static async getPropertiesByOwner(ownerId: string): Promise<Property[]> {
     try {
       const q = query(
-        collection(db, COLLECTION),
-        where('ownerId', '==', userId)
+        collection(db, this.collection),
+        where('ownerId', '==', ownerId)
       );
       
       const querySnapshot = await getDocs(q);
@@ -163,4 +79,29 @@ export class PropertyService {
       throw new Error('Failed to get properties');
     }
   }
+
+  static async updateProperty(id: string, updates: Partial<Property>): Promise<void> {
+    try {
+      const propertyRef = doc(db, this.collection, id);
+      await updateDoc(propertyRef, {
+        ...updates,
+        updatedAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error('Error updating property:', error);
+      throw new Error('Failed to update property');
+    }
+  }
+
+  static async deleteProperty(id: string): Promise<void> {
+    try {
+      const propertyRef = doc(db, this.collection, id);
+      await deleteDoc(propertyRef);
+    } catch (error) {
+      console.error('Error deleting property:', error);
+      throw new Error('Failed to delete property');
+    }
+  }
+
+  // Additional methods can be added here
 }

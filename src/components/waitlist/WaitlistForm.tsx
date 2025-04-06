@@ -1,141 +1,114 @@
+
 import React, { useState } from 'react';
-import { WaitlistService } from '@/lib/firebase/services/waitlist.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { WaitlistService } from '@/lib/firebase/services/waitlist.service';
 import { useToast } from '@/hooks/use-toast';
 
-export function WaitlistForm() {
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    propertyCount: '',
-  });
+const WaitlistForm = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [propertyCount, setPropertyCount] = useState('1-5');
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.email || !formData.propertyCount) {
+    if (!name || !email || !propertyCount) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all fields.",
-        variant: "destructive",
+        title: 'Missing information',
+        description: 'Please fill out all fields.',
+        variant: 'destructive',
       });
       return;
     }
-
+    
     try {
-      setLoading(true);
+      setIsSubmitting(true);
+      
+      // Format property count as number
+      const count = propertyCount === '20+' 
+        ? 20 
+        : parseInt(propertyCount.split('-')[0]);
+      
       await WaitlistService.addToWaitlist({
-        name: formData.name,
-        email: formData.email,
-        propertyCount: parseInt(formData.propertyCount),
-        source: 'website'
+        name,
+        email,
+        propertyCount: count,
+        status: 'pending',
+        // Remove the source property which doesn't exist in the type
       });
-
+      
+      toast({
+        title: 'Successfully joined waitlist!',
+        description: 'We\'ll be in touch soon with more information.',
+      });
+      
       // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        propertyCount: '',
-      });
-
-      // Show success message
-      toast({
-        title: "Successfully Joined Waitlist!",
-        description: "We'll be in touch soon.",
-        variant: "default",
-      });
+      setName('');
+      setEmail('');
+      setPropertyCount('1-5');
+      
     } catch (error) {
-      console.error('Error submitting to waitlist:', error);
+      console.error('Error adding to waitlist:', error);
       toast({
-        title: "Submission Failed",
-        description: "Please try again later.",
-        variant: "destructive",
+        title: 'Error joining waitlist',
+        description: 'Please try again later.',
+        variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Join the Waitlist</CardTitle>
-        <CardDescription>
-          Be among the first to experience AI-powered property management
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              name="name"
-              placeholder="Your name"
-              value={formData.name}
-              onChange={handleChange}
-              disabled={loading}
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="your@email.com"
-              value={formData.email}
-              onChange={handleChange}
-              disabled={loading}
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="propertyCount">Number of Properties</Label>
-            <Input
-              id="propertyCount"
-              name="propertyCount"
-              type="number"
-              min="1"
-              placeholder="How many properties do you manage?"
-              value={formData.propertyCount}
-              onChange={handleChange}
-              disabled={loading}
-              required
-            />
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? "Submitting..." : "Join Waitlist"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Full Name</Label>
+        <Input 
+          id="name" 
+          placeholder="Enter your name" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="email">Email Address</Label>
+        <Input 
+          id="email" 
+          type="email" 
+          placeholder="you@example.com" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="properties">Number of Properties</Label>
+        <Select value={propertyCount} onValueChange={setPropertyCount}>
+          <SelectTrigger id="properties">
+            <SelectValue placeholder="Select number of properties" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1-5">1-5 properties</SelectItem>
+            <SelectItem value="6-10">6-10 properties</SelectItem>
+            <SelectItem value="11-20">11-20 properties</SelectItem>
+            <SelectItem value="20+">20+ properties</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? 'Submitting...' : 'Join Waitlist'}
+      </Button>
+    </form>
   );
-}
+};
+
+export default WaitlistForm;

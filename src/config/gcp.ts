@@ -1,13 +1,10 @@
+
 import { VertexAI } from '@google-cloud/vertexai';
 
 // Initialize Vertex AI
 export const initVertexAI = () => {
   try {
     // Load credentials from environment variable or service account key file
-    const credentials = process.env.GOOGLE_APPLICATION_CREDENTIALS
-      ? undefined // Will use the environment variable
-      : require('./credentials/service-account.json');
-
     const projectId = process.env.GOOGLE_CLOUD_PROJECT;
     if (!projectId) {
       throw new Error('GOOGLE_CLOUD_PROJECT environment variable is not set');
@@ -17,8 +14,7 @@ export const initVertexAI = () => {
 
     return new VertexAI({
       project: projectId,
-      location,
-      credentials
+      location
     });
   } catch (error) {
     console.error('Error initializing Vertex AI:', error);

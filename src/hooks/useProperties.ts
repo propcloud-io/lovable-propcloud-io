@@ -1,119 +1,165 @@
-import { useState, useCallback } from 'react';
-import { DocumentSnapshot } from 'firebase/firestore';
-import { Property } from '@/domain/models/property';
-import { PropertyService } from '@/lib/firebase/services/property.service';
 
-interface UsePropertiesReturn {
+import { useState, useCallback, useEffect } from 'react';
+import { Property, PropertyService } from '@/lib/firebase/services/property.service';
+import { useToast } from '@/hooks/use-toast';
+
+interface UsePropertiesResult {
   properties: Property[];
-  loading: boolean;
+  isLoading: boolean;
   error: Error | null;
-  hasMore: boolean;
-  loadMore: () => Promise<void>;
-  refreshProperties: () => Promise<void>;
-  createProperty: (property: Omit<Property, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Property>;
+  fetchProperties: (ownerId: string) => Promise<Property[]>;
+  addProperty: (property: Omit<Property, "id" | "createdAt" | "updatedAt">) => Promise<Property>;
   updateProperty: (id: string, updates: Partial<Property>) => Promise<Property>;
-  deleteProperty: (id: string) => Promise<boolean>;
+  deleteProperty: (id: string) => Promise<void>;
 }
 
-export function useProperties(pageSize = 10): UsePropertiesReturn {
+export function useProperties(): UsePropertiesResult {
   const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [lastDoc, setLastDoc] = useState<DocumentSnapshot | undefined>();
-  const [hasMore, setHasMore] = useState(true);
+  const { toast } = useToast();
 
-  // Load initial properties
-  const loadProperties = useCallback(async (refresh = false) => {
+  const fetchProperties = useCallback(async (ownerId: string) => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      setError(null);
+      const fetchedProperties = await PropertyService.getPropertiesByOwner(ownerId);
+      // Convert to correct type
+      const typedProperties = fetchedProperties.map(prop => ({
+        ...prop,
+        // Fill in any missing properties required by the domain model
+        ownerId: prop.ownerId || '',
+        name: prop.description || '',
+        location: prop.address?.city || '',
+        currency: 'USD',
+      })) as Property[];
 
-      const result = await PropertyService.getProperties(
-        pageSize,
-        refresh ? undefined : lastDoc
-      );
-
-      if (refresh) {
-        setProperties(result.properties);
-      } else {
-        setProperties(prev => [...prev, ...result.properties]);
-      }
-
-      setLastDoc(result.lastDoc);
-      setHasMore(result.properties.length === pageSize);
+      setProperties(typedProperties);
+      return typedProperties;
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to load properties'));
+      const error = err instanceof Error ? err : new Error('Failed to fetch properties');
+      setError(error);
+      toast({
+        title: 'Error fetching properties',
+        description: error.message,
+        variant: 'destructive',
+      });
+      throw error;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }, [pageSize, lastDoc]);
+  }, [toast]);
 
-  // Load more properties
-  const loadMore = useCallback(async () => {
-    if (!loading && hasMore) {
-      await loadProperties();
-    }
-  }, [loading, hasMore, loadProperties]);
+  const addProperty = useCallback(async (property: Omit<Property, "id" | "createdAt" | "updatedAt">) => {
+    setIsLoading(true);
+    setError(null);
 
-  // Refresh properties
-  const refreshProperties = useCallback(async () => {
-    await loadProperties(true);
-  }, [loadProperties]);
-
-  // Create a new property
-  const createProperty = useCallback(async (
-    property: Omit<Property, 'id' | 'createdAt' | 'updatedAt'>
-  ) => {
     try {
-      const newProperty = await PropertyService.createProperty(property);
-      setProperties(prev => [newProperty, ...prev]);
+      const { id } = await PropertyService.createProperty(property as any);
+      // Create a complete property to return
+      const newProperty = {
+        id,
+        ...property,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Property;
+      
+      setProperties(prev => [...prev, newProperty]);
+      
+      toast({
+        title: 'Property added',
+        description: 'Your property has been added successfully.',
+      });
+      
       return newProperty;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to create property');
+      const error = err instanceof Error ? err : new Error('Failed to add property');
       setError(error);
+      toast({
+        title: 'Error adding property',
+        description: error.message,
+        variant: 'destructive',
+      });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [toast]);
 
-  // Update a property
-  const updateProperty = useCallback(async (
-    id: string,
-    updates: Partial<Property>
-  ) => {
+  const updateProperty = useCallback(async (id: string, updates: Partial<Property>) => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const updatedProperty = await PropertyService.updateProperty(id, updates);
-      setProperties(prev =>
-        prev.map(p => (p.id === id ? updatedProperty : p))
+      await PropertyService.updateProperty(id, updates as any);
+      
+      // Create updated property to return and update state
+      const updatedProperty = properties.find(p => p.id === id);
+      if (!updatedProperty) throw new Error('Property not found');
+      
+      const newProperty = { 
+        ...updatedProperty, 
+        ...updates, 
+        updatedAt: new Date() 
+      } as Property;
+      
+      setProperties(prev => 
+        prev.map(p => p.id === id ? newProperty : p)
       );
-      return updatedProperty;
+      
+      toast({
+        title: 'Property updated',
+        description: 'Your property has been updated successfully.',
+      });
+      
+      return newProperty;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update property');
       setError(error);
+      toast({
+        title: 'Error updating property',
+        description: error.message,
+        variant: 'destructive',
+      });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [properties, toast]);
 
-  // Delete a property
   const deleteProperty = useCallback(async (id: string) => {
+    setIsLoading(true);
+    setError(null);
+
     try {
       await PropertyService.deleteProperty(id);
       setProperties(prev => prev.filter(p => p.id !== id));
-      return true;
+      
+      toast({
+        title: 'Property deleted',
+        description: 'Your property has been deleted successfully.',
+      });
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to delete property');
       setError(error);
+      toast({
+        title: 'Error deleting property',
+        description: error.message,
+        variant: 'destructive',
+      });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   return {
     properties,
-    loading,
+    isLoading,
     error,
-    hasMore,
-    loadMore,
-    refreshProperties,
-    createProperty,
+    fetchProperties,
+    addProperty,
     updateProperty,
     deleteProperty,
   };
