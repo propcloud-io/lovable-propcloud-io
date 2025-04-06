@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { CheckCircle, ArrowRight } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { WaitlistService } from "@/lib/supabase/services";
 
 const WaitlistSection = () => {
   const [email, setEmail] = useState("");
@@ -19,16 +19,11 @@ const WaitlistSection = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from('waitlist')
-        .insert([{
-          email,
-          full_name: name,
-          number_of_properties: properties ? parseInt(properties) : null,
-          signed_up_at: new Date().toISOString()
-        }]);
-
-      if (error) throw error;
+      await WaitlistService.addToWaitlist({
+        email,
+        fullName: name,
+        numberOfProperties: properties ? parseInt(properties) : undefined
+      });
 
       toast({
         title: "Thank you for joining!",
@@ -72,7 +67,7 @@ const WaitlistSection = () => {
                 <p>Limited spots available. Don't miss out!</p>
               </div>
             </div>
-            
+
             <div className="p-10">
               {!isSubmitted ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -86,7 +81,7 @@ const WaitlistSection = () => {
                       required
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address *</Label>
                     <Input
@@ -98,7 +93,7 @@ const WaitlistSection = () => {
                       required
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="properties">Number of Properties</Label>
                     <Input
@@ -108,7 +103,7 @@ const WaitlistSection = () => {
                       placeholder="e.g. 5"
                     />
                   </div>
-                  
+
                   <Button
                     type="submit"
                     className="w-full"
@@ -123,7 +118,7 @@ const WaitlistSection = () => {
                       </>
                     )}
                   </Button>
-                  
+
                   <p className="text-xs text-muted-foreground text-center mt-4">
                     By signing up, you agree to our{" "}
                     <a href="#" className="underline hover:text-propcloud-600">

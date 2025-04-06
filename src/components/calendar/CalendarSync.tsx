@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, RefreshCw, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
-import { IntegrationPlaceholder } from '@/components/ui/integration-placeholder';
+import IntegrationPlaceholder from '@/components/ui/integration-placeholder';
 import { useCalendar } from '@/hooks/useCalendar';
 
 export function CalendarSync() {
@@ -122,4 +122,4 @@ export function CalendarSync() {
       </Card>
     </div>
   );
-} 
+}
