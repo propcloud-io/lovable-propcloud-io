@@ -24,13 +24,13 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
               {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
 
               {/* Protected dashboard routes */}
               <Route
@@ -91,9 +91,9 @@ const App = () => {
               />
 
               {/* Catch-all route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </TooltipProvider>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TooltipProvider>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

@@ -1,4 +1,4 @@
-# PropCloud.io Assistant App (propassistant-ai)
+# PropCloud.io Assistant App (propassistant-ai)c
 
 This repository contains the frontend application for PropCloud.io, an AI-powered property management dashboard.
 
@@ -85,8 +85,8 @@ The goal of PropCloud.io is to provide property owners and managers with a unifi
         *Note: RESEND_API_KEY is used server-side in the Edge Function, not directly exposed to the client.*
 4.  **Run the development server:**
     ```bash
-    npm run dev
-    ```
+npm run dev
+```
     The application should be available at `http://localhost:8080` (or the configured port).
 
 ## Deployment

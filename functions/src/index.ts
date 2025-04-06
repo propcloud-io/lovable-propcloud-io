@@ -7,7 +7,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import { onRequest, onCall } from "firebase-functions/v2/https";
+import { onCall } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import { notifyWaitlistSignup } from './notifyWaitlistSignup';
 
@@ -25,8 +25,16 @@ export const waitlistSignup = onCall(async (request) => {
     const { name, email, propertyCount } = request.data;
     logger.info("New waitlist signup", { name, email, propertyCount });
     
-    // Call the notification handler
-    return await notifyWaitlistSignup(request.data);
+    // Generate an entry ID
+    const entryId = `waitlist_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Call the notification handler with the entry ID
+    return await notifyWaitlistSignup({
+      entryId,
+      name,
+      email,
+      propertyCount
+    });
   } catch (error) {
     logger.error("Error in waitlist signup", error);
     throw new Error('Failed to process waitlist signup');
