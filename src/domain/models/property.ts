@@ -1,3 +1,18 @@
+export enum PropertyStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  MAINTENANCE = 'maintenance',
+  ARCHIVED = 'archived'
+}
+
+export enum PropertyType {
+  APARTMENT = 'apartment',
+  HOUSE = 'house',
+  VILLA = 'villa',
+  CONDO = 'condo',
+  OTHER = 'other'
+}
+
 export interface Location {
   address: string;
   city: string;
@@ -28,9 +43,15 @@ export interface Property {
   ownerId: string;
   name: string;
   description: string;
-  type: 'apartment' | 'house' | 'villa' | 'room' | 'other';
-  status: 'active' | 'inactive' | 'maintenance' | 'draft';
-  location: Location;
+  type: PropertyType;
+  status: PropertyStatus;
+  location: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+  };
   amenities: Amenity[];
   images: PropertyImage[];
   basePrice: number;
@@ -47,4 +68,9 @@ export interface Property {
   };
   createdAt: Date;
   updatedAt: Date;
+  rules?: string[];
+  checkInTime?: string;
+  checkOutTime?: string;
+  minimumStay?: number;
+  cancellationPolicy?: string;
 }

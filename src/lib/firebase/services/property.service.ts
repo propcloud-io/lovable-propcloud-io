@@ -1,26 +1,12 @@
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  limit,
-  startAfter,
-  DocumentSnapshot
-} from 'firebase/firestore';
 import { db } from '../config';
-import { Property } from '@/domain/models/property';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp } from 'firebase/firestore';
+import { Property, PropertyStatus } from '@/domain/models/property';
 
 const COLLECTION = 'properties';
 
 export class PropertyService {
   // Get all properties with pagination
-  static async getProperties(pageSize = 10, lastDoc?: DocumentSnapshot) {
+  static async getProperties(pageSize = 10, lastDoc?: any) {
     try {
       let q = query(
         collection(db, COLLECTION),
@@ -67,63 +53,50 @@ export class PropertyService {
   }
 
   // Create a new property
-  static async createProperty(property: Omit<Property, 'id' | 'createdAt' | 'updatedAt'>) {
+  static async createProperty(property: Omit<Property, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ id: string }> {
     try {
-      const now = new Date();
-      const propertyWithDates = {
+      const propertyData = {
         ...property,
-        createdAt: now,
-        updatedAt: now
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        status: property.status || PropertyStatus.ACTIVE
       };
 
-      const docRef = await addDoc(collection(db, COLLECTION), propertyWithDates);
-      return {
-        id: docRef.id,
-        ...propertyWithDates
-      } as Property;
+      const docRef = await addDoc(collection(db, COLLECTION), propertyData);
+      return { id: docRef.id };
     } catch (error) {
       console.error('Error creating property:', error);
-      throw error;
+      throw new Error('Failed to create property');
     }
   }
 
   // Update a property
-  static async updateProperty(id: string, updates: Partial<Property>) {
+  static async updateProperty(id: string, updates: Partial<Property>): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION, id);
-      const now = new Date();
-      
       await updateDoc(docRef, {
         ...updates,
-        updatedAt: now
+        updatedAt: serverTimestamp()
       });
-
-      // Get the updated document
-      const updatedDoc = await getDoc(docRef);
-      return {
-        id: updatedDoc.id,
-        ...updatedDoc.data()
-      } as Property;
     } catch (error) {
       console.error('Error updating property:', error);
-      throw error;
+      throw new Error('Failed to update property');
     }
   }
 
   // Delete a property
-  static async deleteProperty(id: string) {
+  static async deleteProperty(id: string): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION, id);
       await deleteDoc(docRef);
-      return true;
     } catch (error) {
       console.error('Error deleting property:', error);
-      throw error;
+      throw new Error('Failed to delete property');
     }
   }
 
   // Get properties by owner
-  static async getPropertiesByOwner(ownerId: string, pageSize = 10, lastDoc?: DocumentSnapshot) {
+  static async getPropertiesByOwner(ownerId: string, pageSize = 10, lastDoc?: any) {
     try {
       let q = query(
         collection(db, COLLECTION),
@@ -147,6 +120,24 @@ export class PropertyService {
     } catch (error) {
       console.error('Error getting properties by owner:', error);
       throw error;
+    }
+  }
+
+  static async getProperties(userId: string): Promise<Property[]> {
+    try {
+      const q = query(
+        collection(db, COLLECTION),
+        where('ownerId', '==', userId)
+      );
+      
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Property));
+    } catch (error) {
+      console.error('Error getting properties:', error);
+      throw new Error('Failed to get properties');
     }
   }
 }
