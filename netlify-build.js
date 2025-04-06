@@ -15,12 +15,33 @@ console.log('VITE_SUPABASE_URL length:', supabaseUrl.length);
 console.log('VITE_SUPABASE_ANON_KEY exists:', !!supabaseAnonKey);
 console.log('VITE_SUPABASE_ANON_KEY length:', supabaseAnonKey.length);
 
-// Create a simple index.html if it doesn't exist
+// Ensure dist directory exists
 if (!fs.existsSync(path.join(__dirname, 'dist'))) {
   fs.mkdirSync(path.join(__dirname, 'dist'));
 }
 
-if (!fs.existsSync(path.join(__dirname, 'dist', 'index.html'))) {
+// Try to run the actual Vite build
+try {
+  console.log('Attempting to run Vite build...');
+
+  // Install the React plugin explicitly
+  try {
+    console.log('Installing @vitejs/plugin-react...');
+    execSync('npm install @vitejs/plugin-react --no-save', { stdio: 'inherit' });
+    console.log('@vitejs/plugin-react installed successfully');
+  } catch (installError) {
+    console.error('Error installing @vitejs/plugin-react:', installError.message);
+    // Continue anyway, as we'll handle build failures below
+  }
+
+  // Run the Vite build
+  execSync('npx vite build', { stdio: 'inherit' });
+  console.log('Vite build completed successfully!');
+} catch (buildError) {
+  console.error('Vite build failed:', buildError.message);
+  console.log('Creating fallback index.html...');
+
+  // Create a simple index.html as fallback
   const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -91,4 +112,4 @@ if (!fs.existsSync(path.join(__dirname, 'dist', 'index.html'))) {
   console.log('Created fallback index.html');
 }
 
-console.log('Build completed successfully');
+console.log('Build process completed');
