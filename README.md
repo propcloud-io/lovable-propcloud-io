@@ -1,4 +1,4 @@
-# PropCloud.io Assistant App (propassistant-ai)c
+# PropCloud.io Assistant App (propassistant-ai)
 
 This repository contains the frontend application for PropCloud.io, an AI-powered property management dashboard.
 
@@ -93,3 +93,138 @@ npm run dev
 
 *   **Production (Netlify):** https://polite-scone-26904e.netlify.app/
 *   **Preview (Lovable - Currently Stuck):** [Link to Lovable project]
+
+## Core Features
+
+- **Sales Automation**
+  - Direct bookings (social → WhatsApp/Messenger)
+  - Smart pricing and OTA sync
+  - Marketing automation and lead capture
+
+- **Operations Automation**
+  - Automated cleaning/maintenance management
+  - Team coordination and task tracking
+  - Inventory control
+
+- **Communications Automation**
+  - Full AI guest journey management
+  - Multi-channel unified inbox
+  - Automated support and issue handling
+
+## Setup
+
+### Prerequisites
+
+- Node.js 18+
+- Firebase account
+- Google Cloud Platform account with credits
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/propcloud-io/lovable-propcloud-io.git
+cd lovable-propcloud-io
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up Google Cloud Platform:
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select existing one
+   - Enable required APIs:
+     - Vertex AI API
+     - Cloud Storage API
+   - Create a service account:
+     - Go to "IAM & Admin" > "Service Accounts"
+     - Click "Create Service Account"
+     - Name it "propcloud-ai"
+     - Grant roles:
+       - `Vertex AI User`
+       - `Storage Object Viewer`
+   - Create and download a key:
+     - Click on your service account
+     - Go to "Keys" tab
+     - Click "Add Key" > "Create New Key"
+     - Choose JSON format
+     - Save as `src/config/credentials/service-account.json`
+
+4. Set up environment variables:
+   - Copy `.env.example` to `.env.local`
+   - Update the following variables:
+     ```
+     GOOGLE_CLOUD_PROJECT=your-project-id
+     GOOGLE_CLOUD_LOCATION=us-central1
+     GMAIL_USER=your-email@gmail.com
+     GOOGLE_CLIENT_ID=your-client-id
+     GOOGLE_CLIENT_SECRET=your-client-secret
+     GOOGLE_REFRESH_TOKEN=your-refresh-token
+     NEXT_PUBLIC_API_URL=your-api-url
+     ```
+
+5. Start the development server:
+```bash
+npm run dev
+```
+
+## Architecture
+
+- **Frontend**: Next.js with TypeScript
+- **Backend**: Firebase Functions
+- **Database**: Firestore
+- **AI**: Google Vertex AI (Gemini Pro)
+- **Authentication**: Firebase Auth
+- **Storage**: Google Cloud Storage
+- **Email**: Gmail API
+
+## Development
+
+### Project Structure
+
+```
+src/
+├── app/              # Next.js app router
+├── components/       # React components
+├── config/          # Configuration files
+├── domain/          # Domain models and interfaces
+├── lib/
+│   ├── ai/          # AI services (Vertex AI)
+│   ├── firebase/    # Firebase services
+│   └── utils/       # Utility functions
+└── styles/          # Global styles
+```
+
+### Key Services
+
+- `PropertyService`: Manages property listings and details
+- `BookingService`: Handles reservations and availability
+- `CommunicationService`: Manages guest-host messaging
+- `TaskService`: Coordinates cleaning and maintenance
+- `AIService`: Handles AI-powered features using Vertex AI
+
+### Contributing
+
+1. Create a feature branch:
+```bash
+git checkout -b feature/your-feature-name
+```
+
+2. Make your changes and commit:
+```bash
+git add .
+git commit -m "feat: your feature description"
+```
+
+3. Push to the repository:
+```bash
+git push origin feature/your-feature-name
+```
+
+4. Create a Pull Request
+
+## License
+
+Proprietary - All rights reserved

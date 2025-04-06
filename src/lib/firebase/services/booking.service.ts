@@ -1,15 +1,15 @@
 import { db } from '../config';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp, getDoc } from 'firebase/firestore';
 
 export enum BookingStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  CANCELLED = 'cancelled',
-  COMPLETED = 'completed'
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED'
 }
 
 export interface Booking {
-  id: string;
+  id?: string;
   propertyId: string;
   guestId: string;
   checkIn: Date;
@@ -17,10 +17,10 @@ export interface Booking {
   guests: number;
   totalPrice: number;
   status: BookingStatus;
-  paymentStatus: 'pending' | 'paid' | 'refunded';
+  paymentStatus?: 'pending' | 'paid' | 'refunded';
   specialRequests?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class BookingService {
@@ -53,6 +53,22 @@ export class BookingService {
     } catch (error) {
       console.error('Error updating booking:', error);
       throw new Error('Failed to update booking');
+    }
+  }
+
+  static async getBookingById(id: string): Promise<Booking> {
+    try {
+      const docRef = doc(db, 'bookings', id);
+      const docSnap = await getDoc(docRef);
+      
+      if (!docSnap.exists()) {
+        throw new Error('Booking not found');
+      }
+
+      return { id: docSnap.id, ...docSnap.data() } as Booking;
+    } catch (error) {
+      console.error('Error getting booking:', error);
+      throw error;
     }
   }
 

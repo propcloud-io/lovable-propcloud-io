@@ -1,6 +1,29 @@
 import { db } from '../config';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp } from 'firebase/firestore';
-import { Property, PropertyStatus } from '@/domain/models/property';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp, orderBy, limit, startAfter } from 'firebase/firestore';
+
+export interface Property {
+  id?: string;
+  type: string;
+  status: string;
+  basePrice: number;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+  };
+  amenities: string[];
+  description: string;
+  images: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export enum PropertyStatus {
+  ACTIVE,
+  INACTIVE
+}
 
 const COLLECTION = 'properties';
 
