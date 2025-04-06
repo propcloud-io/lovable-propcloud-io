@@ -1,6 +1,6 @@
 # Netlify build settings
 [build]
-  command = "npm install && npm run build"
+  command = "npm install && node netlify-build-direct.js"
   publish = "dist"
   environment = { VITE_SUPABASE_URL = "${VITE_SUPABASE_URL}", VITE_SUPABASE_ANON_KEY = "${VITE_SUPABASE_ANON_KEY}" }
 
