@@ -16,6 +16,38 @@ const WaitlistSection = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Basic validation
+    if (!email || !name) {
+      toast({
+        title: "Missing information",
+        description: "Please provide your name and email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast({
+        title: "Invalid email",
+        description: "Please provide a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Number validation
+    if (properties && isNaN(parseInt(properties))) {
+      toast({
+        title: "Invalid number",
+        description: "Please provide a valid number of properties.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     console.log('Submitting waitlist form with:', { email, name, properties });
 
@@ -43,15 +75,41 @@ const WaitlistSection = () => {
       if (error instanceof Error) {
         console.error('Error message:', error.message);
         console.error('Error stack:', error.stack);
+
+        // Handle specific error messages
+        if (error.message.includes('already on our waitlist')) {
+          toast({
+            title: "Already registered",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else if (error.message.includes('Permission denied')) {
+          toast({
+            title: "Permission error",
+            description: "We're experiencing some technical difficulties. Please try again later.",
+            variant: "destructive",
+          });
+        } else if (error.message.includes('table does not exist')) {
+          toast({
+            title: "System error",
+            description: "Our waitlist system is currently unavailable. Please try again later.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: error.message || "An error occurred while joining the waitlist.",
+            variant: "destructive",
+          });
+        }
       } else {
         console.error('Unknown error type:', typeof error);
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred. Please try again later.",
+          variant: "destructive",
+        });
       }
-
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
     } finally {
       setIsSubmitting(false);
     }
