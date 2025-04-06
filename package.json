@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "start": "node start-local.js",
-    "build": "node netlify-build-direct.js",
+    "build": "vite build",
     "build:vite": "vite build",
     "build:dev": "vite build --mode development",
     "build:test": "node test-build.js",
