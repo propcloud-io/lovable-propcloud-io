@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { CheckCircle, ArrowRight } from "lucide-react";
+import { CheckCircle, ArrowRight, AlertCircle, Check } from "lucide-react";
 import { WaitlistService } from "@/lib/supabase/services";
+import { supabase } from "@/lib/supabase";
+
+// ListItem component for the waitlist benefits
+const ListItem = ({ children }: { children: React.ReactNode }) => (
+  <li className="flex items-start">
+    <Check className="h-5 w-5 mr-2 mt-0.5 text-white" />
+    <span>{children}</span>
+  </li>
+);
 
 const WaitlistSection = () => {
   const [email, setEmail] = useState("");
@@ -12,7 +21,24 @@ const WaitlistSection = () => {
   const [properties, setProperties] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean | null>(null);
   const { toast } = useToast();
+
+  // Check if Supabase is connected
+  useEffect(() => {
+    const checkSupabaseConnection = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        setIsSupabaseConnected(!error);
+        console.log('Supabase connection check:', { data, error });
+      } catch (error) {
+        console.error('Error checking Supabase connection:', error);
+        setIsSupabaseConnected(false);
+      }
+    };
+
+    checkSupabaseConnection();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,6 +160,12 @@ const WaitlistSection = () => {
               </ul>
               <div className="mt-12 text-white/80">
                 <p>Limited spots available. Don't miss out!</p>
+                {isSupabaseConnected === false && (
+                  <div className="mt-4 p-3 bg-yellow-600/30 rounded-lg flex items-center text-white">
+                    <AlertCircle className="w-5 h-5 mr-2" />
+                    <span>Database connection issue. Your submission may not be saved.</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -172,6 +204,16 @@ const WaitlistSection = () => {
                       placeholder="e.g. 5"
                     />
                   </div>
+
+                  {isSupabaseConnected === false && (
+                    <div className="p-3 bg-yellow-50 rounded-lg text-sm text-yellow-800 mb-4">
+                      <div className="flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        <span className="font-medium">Connection issue detected</span>
+                      </div>
+                      <p className="mt-1 ml-6">There may be a problem with our database connection. Your submission might not be saved.</p>
+                    </div>
+                  )}
 
                   <Button
                     type="submit"
