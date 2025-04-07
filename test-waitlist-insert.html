@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waitlist Insert Test</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    label {
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+    }
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>Waitlist Insert Test</h1>
+  
+  <div>
+    <h2>Configuration</h2>
+    <p>Supabase URL: <span id="supabase-url"></span></p>
+    <p>Supabase Key: <span id="supabase-key"></span></p>
+  </div>
+  
+  <div>
+    <h2>Test Direct Insert</h2>
+    <form id="insert-form">
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" required placeholder="test@example.com">
+      </div>
+      <div>
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" required placeholder="Test User">
+      </div>
+      <div>
+        <label for="properties">Number of Properties:</label>
+        <input type="number" id="properties" placeholder="5">
+      </div>
+      <button type="submit">Test Insert</button>
+    </form>
+    <div id="insert-result"></div>
+  </div>
+  
+  <div>
+    <h2>SQL for Waitlist Table</h2>
+    <pre>
+-- Create the waitlist table if it doesn't exist
+CREATE TABLE IF NOT EXISTS public.waitlist (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    full_name TEXT NOT NULL,
+    number_of_properties INTEGER,
+    signed_up_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE public.waitlist ENABLE ROW LEVEL SECURITY;
+
+-- Create a policy that allows inserting by anyone (for the waitlist form)
+DROP POLICY IF EXISTS "Allow public insert to waitlist" ON public.waitlist;
+CREATE POLICY "Allow public insert to waitlist" ON public.waitlist
+    FOR INSERT
+    TO anon
+    WITH CHECK (true);
+
+-- Create a policy that allows reading only by authenticated users
+DROP POLICY IF EXISTS "Allow authenticated users to read waitlist" ON public.waitlist;
+CREATE POLICY "Allow authenticated users to read waitlist" ON public.waitlist
+    FOR SELECT
+    TO authenticated
+    USING (true);
+    </pre>
+  </div>
+  
+  <script>
+    // Supabase configuration
+    const supabaseUrl = 'https://ixnfbfvbvwwqvnlnwvxs.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4bmZiZnZidnd3cXZubG53dnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU2NTI0NzcsImV4cCI6MjAzMTIyODQ3N30.Yd_QlUQBOIHu5gDNGR-7-vJv8QVU9RJkEjL0SkXgB0Y';
+    
+    // Display configuration
+    document.getElementById('supabase-url').textContent = supabaseUrl;
+    document.getElementById('supabase-key').textContent = supabaseKey.substring(0, 10) + '...';
+    
+    // Create Supabase client
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    
+    // Handle form submission
+    document.getElementById('insert-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const resultElement = document.getElementById('insert-result');
+      resultElement.innerHTML = '<p>Testing insert...</p>';
+      
+      const email = document.getElementById('email').value;
+      const name = document.getElementById('name').value;
+      const properties = document.getElementById('properties').value;
+      
+      try {
+        // Format the entry for insertion
+        const waitlistEntry = {
+          email: email,
+          full_name: name,
+          number_of_properties: properties ? parseInt(properties) : null,
+          signed_up_at: new Date().toISOString()
+        };
+        
+        console.log('Formatted waitlist entry:', waitlistEntry);
+        
+        // Insert the new entry
+        console.log('Calling supabase.from("waitlist").insert()');
+        const { data, error } = await supabaseClient
+          .from('waitlist')
+          .insert(waitlistEntry)
+          .select('*')
+          .single();
+        
+        console.log('Supabase response:', { data, error });
+        
+        if (error) {
+          resultElement.innerHTML = `
+            <p class="error">Error: ${error.message}</p>
+            <pre>${JSON.stringify(error, null, 2)}</pre>
+            <p>Error code: ${error.code}</p>
+            <p>Error details: ${error.details}</p>
+            <p>Error hint: ${error.hint}</p>
+          `;
+        } else {
+          resultElement.innerHTML = `
+            <p class="success">Successfully inserted record!</p>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          `;
+        }
+      } catch (error) {
+        resultElement.innerHTML = `
+          <p class="error">Exception: ${error.message}</p>
+          <pre>${error.stack}</pre>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

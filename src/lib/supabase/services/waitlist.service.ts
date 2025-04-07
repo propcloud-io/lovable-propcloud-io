@@ -56,12 +56,26 @@ export class WaitlistService {
         throw new Error('This email is already on our waitlist');
       }
 
-      // Insert the new entry
+      // Insert the new entry - using a more direct approach
       console.log('Calling supabase.from("waitlist").insert()');
+
+      // First try with a simpler approach (just insert without select)
+      const insertResult = await supabase
+        .from('waitlist')
+        .insert(waitlistEntry);
+
+      console.log('Initial insert result:', insertResult);
+
+      if (insertResult.error) {
+        console.error('Initial insert error:', insertResult.error);
+        throw insertResult.error;
+      }
+
+      // If insert succeeded, try to get the ID
       const { data, error } = await supabase
         .from('waitlist')
-        .insert(waitlistEntry)
         .select('id')
+        .eq('email', entry.email)
         .single();
 
       console.log('Supabase response:', { data, error });
