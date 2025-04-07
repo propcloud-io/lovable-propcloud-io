@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { WaitlistService } from '@/lib/firebase/services/waitlist.service';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const WaitlistForm = () => {
@@ -34,13 +34,15 @@ const WaitlistForm = () => {
         ? 20 
         : parseInt(propertyCount.split('-')[0]);
       
-      await WaitlistService.addToWaitlist({
-        name,
-        email,
-        propertyCount: count,
-        status: 'pending',
-        // Remove the source property which doesn't exist in the type
-      });
+      const { error } = await supabase
+        .from('waitlist')
+        .insert({
+          full_name: name,
+          email,
+          number_of_properties: count,
+        });
+      
+      if (error) throw error;
       
       toast({
         title: 'Successfully joined waitlist!',

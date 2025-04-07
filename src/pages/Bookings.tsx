@@ -7,10 +7,8 @@ import { Calendar, CheckCircle2, Clock, User, CreditCard, Loader2, Bell } from "
 import { CalendarSync } from "@/components/calendar/CalendarSync";
 import { useBookings } from "@/hooks/useBookings";
 import { useFeatureIntegration } from "@/hooks/useFeatureIntegration";
-import { BookingService, Booking, BookingStatus as ServiceBookingStatus } from '@/lib/supabase/services';
+import { Booking, BookingStatus, PaymentStatus } from "@/domain/models/booking";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-
-type PaymentStatus = 'pending' | 'paid' | 'refunded';
 
 const Bookings = () => {
   const {
@@ -24,7 +22,7 @@ const Bookings = () => {
   } = useBookings();
 
   const {
-    notifications,
+    notifications = [],
     isLoading: integrationLoading,
     error: integrationError,
     handleBookingStatusChange,
@@ -35,7 +33,7 @@ const Bookings = () => {
   const error = bookingsError || integrationError;
   const errorMessage = error instanceof Error ? error.message : (typeof error === 'string' ? error : 'An unknown error occurred');
 
-  const handleStatusUpdate = async (bookingId: string, status: ServiceBookingStatus) => {
+  const handleStatusUpdate = async (bookingId: string, status: BookingStatus) => {
     try {
       await Promise.all([
         updateBookingStatus(bookingId, status),
@@ -58,19 +56,20 @@ const Bookings = () => {
   const handleCancel = async (bookingId: string) => {
     try {
       await Promise.all([
-        updateBookingStatus(bookingId, ServiceBookingStatus.CANCELLED),
+        cancelBooking(bookingId),
+        handleBookingStatusChange(bookingId, BookingStatus.CANCELLED)
       ]);
     } catch (error) {
       console.error('Failed to cancel booking:', error);
     }
   };
 
-  const renderStatusBadge = (status: ServiceBookingStatus) => {
-    const styles: Record<ServiceBookingStatus, string> = {
-      [ServiceBookingStatus.CONFIRMED]: 'bg-green-100 text-green-800',
-      [ServiceBookingStatus.PENDING]: 'bg-yellow-100 text-yellow-800',
-      [ServiceBookingStatus.COMPLETED]: 'bg-blue-100 text-blue-800',
-      [ServiceBookingStatus.CANCELLED]: 'bg-red-100 text-red-800'
+  const renderStatusBadge = (status: BookingStatus) => {
+    const styles = {
+      [BookingStatus.CONFIRMED]: 'bg-green-100 text-green-800',
+      [BookingStatus.PENDING]: 'bg-yellow-100 text-yellow-800',
+      [BookingStatus.COMPLETED]: 'bg-blue-100 text-blue-800',
+      [BookingStatus.CANCELLED]: 'bg-red-100 text-red-800'
     };
     const statusText = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 
@@ -81,20 +80,21 @@ const Bookings = () => {
     );
   };
 
-  const renderPaymentStatus = (status: PaymentStatus | undefined) => {
+  const renderPaymentStatus = (status: PaymentStatus | undefined | null) => {
     if (!status) {
       return <span className="text-sm text-muted-foreground">N/A</span>;
     }
-    const styles: Record<PaymentStatus, string> = {
-      paid: 'text-green-500',
-      pending: 'text-yellow-500',
-      refunded: 'text-red-500'
+    const styles = {
+      [PaymentStatus.PAID]: 'text-green-500',
+      [PaymentStatus.PENDING]: 'text-yellow-500',
+      [PaymentStatus.REFUNDED]: 'text-red-500'
     };
+    const statusText = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 
     return (
-      <div className={`flex items-center gap-1 ${styles[status]}`}>
+      <div className={`flex items-center gap-1 ${styles[status] || 'text-gray-500'}`}>
         <CreditCard className="h-4 w-4" />
-        <span className="text-sm capitalize">{status}</span>
+        <span className="text-sm capitalize">{statusText}</span>
       </div>
     );
   };
@@ -144,17 +144,17 @@ const Bookings = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {bookings.map(booking => (
+                {bookings.map((booking: Booking) => (
                   <div
-                    key={booking.id}
+                    key={booking.id || `booking-${booking.checkIn}`}
                     className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="font-medium">Property ID: {booking.propertyId}</h3>
-                        <p className="text-sm text-muted-foreground">Guest ID: {booking.guestId}</p>
+                        <h3 className="font-medium">{booking.propertyName || booking.property?.name || `Property ${booking.propertyId}`}</h3>
+                        <p className="text-sm text-muted-foreground">{booking.guestName || (booking.guest ? `${booking.guest.firstName} ${booking.guest.lastName}` : `Guest ${booking.guestId}`)}</p>
                       </div>
-                      {renderStatusBadge(booking.status as ServiceBookingStatus)}
+                      {renderStatusBadge(booking.status)}
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm">
@@ -165,34 +165,34 @@ const Bookings = () => {
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <User className="h-4 w-4 text-muted-foreground" />
-                        <span>Guest ID: {booking.guestId} ({booking.guests} guests)</span>
+                        <span>{booking.guestName || (booking.guest ? `${booking.guest.firstName} ${booking.guest.lastName}` : `Guest ${booking.guestId}`)} ({booking.guestCount} guests)</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">${booking.totalPrice}</span>
-                        {renderPaymentStatus(booking.paymentStatus)}
+                        <span className="text-sm font-medium">${booking.totalAmount ?? booking.payment?.totalAmount}</span>
+                        {renderPaymentStatus(booking.paymentStatus || booking.payment?.status)}
                       </div>
                       <div className="flex gap-2 mt-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleStatusUpdate(booking.id!, ServiceBookingStatus.CONFIRMED)}
-                          disabled={booking.status === ServiceBookingStatus.CONFIRMED || !booking.id}
+                          onClick={() => booking.id && handleStatusUpdate(booking.id, BookingStatus.CONFIRMED)}
+                          disabled={!booking.id || booking.status === BookingStatus.CONFIRMED}
                         >
                           Confirm
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handlePaymentUpdate(booking.id!, 'paid')}
-                          disabled={booking.paymentStatus === 'paid' || !booking.id}
+                          onClick={() => booking.id && handlePaymentUpdate(booking.id, PaymentStatus.PAID)}
+                          disabled={!booking.id || (booking.paymentStatus || booking.payment?.status) === PaymentStatus.PAID}
                         >
                           Mark as Paid
                         </Button>
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => handleCancel(booking.id!)}
-                          disabled={booking.status === ServiceBookingStatus.CANCELLED || !booking.id}
+                          onClick={() => booking.id && handleCancel(booking.id)}
+                          disabled={!booking.id || booking.status === BookingStatus.CANCELLED}
                         >
                           Cancel
                         </Button>

@@ -1,4 +1,18 @@
+
 import { Property } from './property';
+
+export enum BookingStatus {
+  PENDING = "pending",
+  CONFIRMED = "confirmed",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled"
+}
+
+export enum PaymentStatus {
+  PENDING = "pending",
+  PAID = "paid",
+  REFUNDED = "refunded"
+}
 
 export interface Guest {
   id: string;
@@ -12,7 +26,7 @@ export interface Guest {
 }
 
 export interface PaymentDetails {
-  status: 'pending' | 'partial' | 'paid' | 'refunded' | 'failed';
+  status: PaymentStatus | string;
   totalAmount: number;
   currency: string;
   breakdown: {
@@ -38,7 +52,7 @@ export interface Booking {
   guest?: Guest; // For joined queries
   checkIn: Date;
   checkOut: Date;
-  status: 'inquiry' | 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status: BookingStatus;
   source: 'direct' | 'airbnb' | 'booking' | 'vrbo' | 'website' | 'other';
   sourceBookingId?: string; // Reference ID from OTA
   guestCount: number;
@@ -49,4 +63,10 @@ export interface Booking {
   updatedAt: Date;
   cancelledAt?: Date;
   cancellationReason?: string;
+  
+  // Helper properties for display
+  propertyName?: string;
+  guestName?: string;
+  totalAmount?: number;
+  paymentStatus?: PaymentStatus;
 }
