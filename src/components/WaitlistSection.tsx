@@ -109,12 +109,26 @@ const WaitlistSection = () => {
             description: error.message,
             variant: "destructive",
           });
-        } else if (error.message.includes('Permission denied')) {
+        } else if (error.message.includes('Permission denied') || error.message.includes('policy')) {
           toast({
             title: "Permission error",
-            description: "We're experiencing some technical difficulties. Please try again later.",
+            description: "We're experiencing some technical difficulties with our database permissions. Please email us at contact@propcloud.io to join the waitlist instead.",
             variant: "destructive",
+            action: (
+              <a
+                href={`mailto:contact@propcloud.io?subject=Waitlist%20Signup&body=Please%20add%20me%20to%20the%20waitlist:%0A%0AName:%20${encodeURIComponent(name)}%0AEmail:%20${encodeURIComponent(email)}%0ANumber%20of%20Properties:%20${encodeURIComponent(properties || 'Not specified')}%0A%0AThank%20you!`}
+                className="bg-white text-black px-3 py-1 rounded-md text-xs font-medium"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Email Us
+              </a>
+            ),
           });
+          console.error('Supabase permission error details:', error);
+          // Log additional information that might help diagnose the issue
+          console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+          console.log('User info:', { email, name, properties });
         } else if (error.message.includes('table does not exist')) {
           toast({
             title: "System error",
@@ -212,6 +226,7 @@ const WaitlistSection = () => {
                         <span className="font-medium">Connection issue detected</span>
                       </div>
                       <p className="mt-1 ml-6">There may be a problem with our database connection. Your submission might not be saved.</p>
+                      <p className="mt-1 ml-6">Alternatively, you can email us at <a href="mailto:contact@propcloud.io" className="text-blue-600 underline">contact@propcloud.io</a> to join the waitlist.</p>
                     </div>
                   )}
 
