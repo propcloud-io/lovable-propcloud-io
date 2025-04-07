@@ -271,13 +271,6 @@ const WaitlistSection = () => {
   );
 };
 
-const ListItem = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <li className="flex items-start">
-      <CheckCircle className="h-5 w-5 mr-2 shrink-0 mt-0.5" />
-      <span>{children}</span>
-    </li>
-  );
-};
+// ListItem component is already defined at the top of the file
 
 export default WaitlistSection;
