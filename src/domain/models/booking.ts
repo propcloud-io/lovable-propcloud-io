@@ -1,5 +1,7 @@
+import type { Property } from './property';
 
-import { Property } from './property';
+// Re-export Property type
+export type { Property };
 
 export enum BookingStatus {
   PENDING = "pending",
@@ -23,6 +25,11 @@ export interface Guest {
   nationality?: string;
   preferredLanguage?: string;
   previousStays?: number;
+}
+
+export interface Property {
+  id: string;
+  name?: string;
 }
 
 export interface PaymentDetails {
