@@ -2,18 +2,18 @@ import React from 'react';
 // Import routing capabilities if needed (assuming react-router-dom is used with Vite)
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Import Landing Page Sections (using default imports)
-import HeroSection from '@/components/sections/HeroSection';
-import FeaturesSection from '@/components/sections/FeaturesSection';
-import BenefitsSection from '@/components/sections/BenefitsSection';
-import HowItWorksSection from '@/components/sections/HowItWorksSection';
-import { WhoWeAre } from '@/components/landing/WhoWeAre'; // Assuming this is About Us
-import CTASection from '@/components/sections/CTASection'; // Assuming this is bottom CTA
+// Import Landing Page Sections (using default imports with extensions)
+import HeroSection from '@/components/sections/HeroSection.tsx';
+import FeaturesSection from '@/components/sections/FeaturesSection.tsx';
+import BenefitsSection from '@/components/sections/BenefitsSection.tsx';
+import HowItWorksSection from '@/components/sections/HowItWorksSection.tsx';
+import { WhoWeAre } from '@/components/landing/WhoWeAre.tsx'; // Assuming .tsx extension needed
+import CTASection from '@/components/sections/CTASection.tsx';
 // Assuming FAQs might be another component or part of WhoWeAre/CTASection
 
-// Import Layout Components
-import Header from '@/components/layout/Header'; // Use the found Header component
-import Footer from '@/components/layout/Footer'; // Import the detailed footer
+// Import Layout Components (with extensions)
+import Header from '@/components/layout/Header.tsx';
+import Footer from '@/components/layout/Footer.tsx';
 
 // Placeholder pages for routing (if applicable)
 const LoginPage = () => <div>Login Page Placeholder</div>;
