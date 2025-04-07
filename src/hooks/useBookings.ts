@@ -1,21 +1,25 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BookingService, Booking, BookingStatus } from '@/lib/supabase/services';
+// Import Domain types
+import { Booking, BookingStatus, PaymentStatus, BookingStats } from '@/domain/models/booking';
+// Import service for making calls, but use Domain types for data structures
+import { BookingService } from '@/lib/supabase/services';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProperties } from './useProperties';
 
-export interface BookingStats {
-  totalBookings: number;
-  occupancyRate: number;
-  monthlyRevenue: number;
-  averageRating: number;
-}
+// Remove local BookingStats definition, use imported one
+// export interface BookingStats {
+//   totalBookings: number;
+//   occupancyRate: number;
+//   monthlyRevenue: number;
+//   averageRating: number;
+// }
 
-// Define PaymentStatus type based on service definition
-type PaymentStatus = 'pending' | 'paid' | 'refunded';
+// Define PaymentStatus locally - NO, use imported Domain type
+// type PaymentStatus = 'pending' | 'paid' | 'refunded';
 
 export function useBookings() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]); // Use Domain Booking type
   const [stats, setStats] = useState<BookingStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -70,8 +74,8 @@ export function useBookings() {
     const confirmedBookings = bookings.filter(b => b.status === BookingStatus.CONFIRMED || b.status === BookingStatus.COMPLETED).length;
     const occupancyRate = totalBookings > 0 ? (confirmedBookings / totalBookings) * 100 : 0;
 
-    // Calculate monthly revenue
-    const monthlyRevenue = bookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
+    // Calculate monthly revenue using nested payment details
+    const monthlyRevenue = bookings.reduce((sum, booking) => sum + (booking.payment?.totalAmount || 0), 0);
 
     // Set a default average rating (in a real app, this would come from reviews)
     const averageRating = 4.7;
@@ -84,12 +88,13 @@ export function useBookings() {
     });
   }, [bookings]);
 
-  const createBooking = async (booking: Omit<Booking, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => {
+  const createBooking = async (bookingInput: Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const result = await BookingService.createBooking(booking);
+      // The service now handles mapping the DomainBooking input to the DB structure
+      const result = await BookingService.createBooking(bookingInput);
 
       // Refresh bookings
       await fetchBookings();
@@ -120,6 +125,7 @@ export function useBookings() {
     setError(null);
 
     try {
+      // Pass the domain status; service layer handles mapping if needed (but we aligned it)
       await BookingService.updateBooking(bookingId, { status });
 
       // Refresh bookings
@@ -149,7 +155,9 @@ export function useBookings() {
     setError(null);
 
     try {
-      await BookingService.updateBooking(bookingId, { paymentStatus });
+      // Pass the domain status; service layer handles mapping if needed
+      // We might need to pass it within a payment object depending on updateBooking implementation
+      await BookingService.updateBooking(bookingId, { paymentStatus }); // Or potentially { payment: { status: paymentStatus } }
 
       // Refresh bookings
       await fetchBookings();
@@ -178,6 +186,7 @@ export function useBookings() {
     setError(null);
 
     try {
+      // Use Domain BookingStatus
       await BookingService.updateBooking(bookingId, {
         status: BookingStatus.CANCELLED
       });

@@ -77,3 +77,11 @@ export interface Booking {
   totalAmount?: number;
   paymentStatus?: PaymentStatus;
 }
+
+// Add BookingStats export
+export interface BookingStats {
+  totalBookings: number;
+  occupancyRate: number;
+  monthlyRevenue: number;
+  averageRating: number;
+}
