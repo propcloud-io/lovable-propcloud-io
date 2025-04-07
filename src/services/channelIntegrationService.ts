@@ -1,175 +1,226 @@
-import { SimulatedDataService } from './simulatedData';
-import { BaseApiService } from './baseApi';
-import config from './config';
 
-export type ChannelType = 'airbnb' | 'booking' | 'vrbo' | 'website' | 'whatsapp' | 'facebook';
+import { toast } from "@/hooks/use-toast";
+import { Property } from "@/domain/models/property";
+import { config } from "@/services/config";
+
+// Types for channel integration
+export type ChannelType = 'airbnb' | 'booking' | 'vrbo' | 'direct' | 'instagram' | 'facebook';
 
 export interface Channel {
   id: string;
   name: string;
   icon: string;
-  type: ChannelType;
   connected: boolean;
-  status: 'connected' | 'pending' | 'disconnected' | 'error';
-  properties?: number;
-  lastSyncDate?: Date;
-  credentials?: Record<string, string>;
+  status: 'connected' | 'disconnected' | 'pending' | 'error';
+  properties: number;
+  lastSync?: string;
 }
 
-export interface ConnectChannelResponse {
+interface ChannelResponse {
   success: boolean;
-  channelId: string;
-  status: Channel['status'];
   properties?: number;
   error?: string;
 }
 
-/**
- * Service for managing integration with various booking and communication channels
- */
-export class ChannelIntegrationService extends BaseApiService {
-  private static instance: ChannelIntegrationService;
-  private simulatedData: SimulatedDataService;
+interface ChannelSettings {
+  syncInterval: string;
+  lastSyncDate: string;
+  syncCalendars: boolean;
+  syncPricing: boolean;
+  propertyMappings: Record<string, string>;
+}
 
-  private constructor() {
-    super();
-    this.simulatedData = SimulatedDataService.getInstance();
-  }
+const mockChannels: Channel[] = [
+  {
+    id: 'airbnb',
+    name: 'Airbnb',
+    icon: '🏠',
+    connected: false,
+    status: 'disconnected',
+    properties: 0,
+  },
+  {
+    id: 'booking',
+    name: 'Booking.com',
+    icon: '🏨',
+    connected: false,
+    status: 'disconnected',
+    properties: 0,
+  },
+  {
+    id: 'vrbo',
+    name: 'VRBO',
+    icon: '🏡',
+    connected: false,
+    status: 'disconnected',
+    properties: 0,
+  },
+  {
+    id: 'direct',
+    name: 'Direct Website',
+    icon: '🌐',
+    connected: false,
+    status: 'disconnected',
+    properties: 0,
+  },
+  {
+    id: 'instagram',
+    name: 'Instagram',
+    icon: '📸',
+    connected: false,
+    status: 'disconnected',
+    properties: 0,
+  },
+  {
+    id: 'facebook',
+    name: 'Facebook',
+    icon: '👥',
+    connected: false,
+    status: 'disconnected',
+    properties: 0,
+  },
+];
 
-  /**
-   * Get singleton instance of ChannelIntegrationService
-   */
-  public static getInstance(): ChannelIntegrationService {
-    if (!ChannelIntegrationService.instance) {
-      ChannelIntegrationService.instance = new ChannelIntegrationService();
-    }
-    return ChannelIntegrationService.instance;
-  }
+// Simulate API calls with delays
+const simulateApiCall = () => new Promise<void>(resolve => setTimeout(resolve, 1500));
 
-  /**
-   * Get all available channels with their connection status
-   */
-  public async getChannels(): Promise<Channel[]> {
+export const ChannelIntegrationService = {
+  getChannels: async (): Promise<Channel[]> => {
     try {
-      // In a real implementation, this would call your backend API
-      // For now, we'll use simulated data
-      await this.simulatedData.simulateApiDelay(500);
+      // Simulate API call
+      await simulateApiCall();
       
-      return [
-        { id: 'airbnb', name: 'Airbnb', icon: '🏡', type: 'airbnb', connected: false, status: 'disconnected' },
-        { id: 'booking', name: 'Booking.com', icon: '🅱️', type: 'booking', connected: false, status: 'disconnected' },
-        { id: 'vrbo', name: 'VRBO/HomeAway', icon: '🏠', type: 'vrbo', connected: false, status: 'disconnected' },
-        { id: 'website', name: 'Your Website', icon: '🌐', type: 'website', connected: false, status: 'disconnected' },
-        { id: 'whatsapp', name: 'WhatsApp Business', icon: '💬', type: 'whatsapp', connected: false, status: 'disconnected' },
-        { id: 'facebook', name: 'Facebook/Instagram', icon: '📱', type: 'facebook', connected: false, status: 'disconnected' },
-      ];
+      return [...mockChannels];
     } catch (error) {
-      console.error('Error fetching channels:', error);
-      throw error;
+      console.error("Error fetching channels:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load channels. Please try again.",
+        variant: "destructive",
+      });
+      return [];
     }
-  }
-
-  /**
-   * Connect to a specific channel via OAuth or API key
-   */
-  public async connectChannel(channelId: ChannelType, credentials?: Record<string, string>): Promise<ConnectChannelResponse> {
+  },
+  
+  connectChannel: async (channelId: ChannelType): Promise<ChannelResponse> => {
     try {
-      // In production, this would initiate an OAuth flow or API connection
-      await this.simulatedData.simulateApiDelay(1500);
+      // Simulate API call
+      await simulateApiCall();
       
-      // Simulate connection success with random property count
-      const properties = Math.floor(Math.random() * 5) + 1;
+      // Find channel and update its status
+      const channelIndex = mockChannels.findIndex(c => c.id === channelId);
+      if (channelIndex === -1) {
+        return { success: false, error: "Channel not found" };
+      }
       
-      return {
-        success: true,
-        channelId,
+      // Update channel in mock data
+      mockChannels[channelIndex] = {
+        ...mockChannels[channelIndex],
+        connected: true,
         status: 'connected',
-        properties,
+        properties: Math.floor(Math.random() * 10) + 1, // Random number of properties
+        lastSync: new Date().toISOString(),
+      };
+      
+      return { 
+        success: true,
+        properties: mockChannels[channelIndex].properties
       };
     } catch (error) {
       console.error(`Error connecting to ${channelId}:`, error);
-      return {
-        success: false,
-        channelId,
-        status: 'error',
-        error: `Failed to connect to ${channelId}: ${(error as Error).message}`,
-      };
+      return { success: false, error: "Connection failed" };
     }
-  }
-
-  /**
-   * Disconnect from a specific channel
-   */
-  public async disconnectChannel(channelId: ChannelType): Promise<ConnectChannelResponse> {
+  },
+  
+  disconnectChannel: async (channelId: ChannelType): Promise<ChannelResponse> => {
     try {
-      // In production, this would revoke OAuth tokens or API access
-      await this.simulatedData.simulateApiDelay(800);
+      // Simulate API call
+      await simulateApiCall();
       
-      return {
-        success: true,
-        channelId,
+      // Find channel and update its status
+      const channelIndex = mockChannels.findIndex(c => c.id === channelId);
+      if (channelIndex === -1) {
+        return { success: false, error: "Channel not found" };
+      }
+      
+      // Update channel in mock data
+      mockChannels[channelIndex] = {
+        ...mockChannels[channelIndex],
+        connected: false,
         status: 'disconnected',
+        properties: 0,
+        lastSync: undefined,
       };
+      
+      return { success: true };
     } catch (error) {
       console.error(`Error disconnecting from ${channelId}:`, error);
-      return {
-        success: false,
-        channelId,
-        status: 'error',
-        error: `Failed to disconnect from ${channelId}: ${(error as Error).message}`,
-      };
+      return { success: false, error: "Disconnection failed" };
     }
-  }
-
-  /**
-   * Sync properties with a connected channel
-   */
-  public async syncChannel(channelId: ChannelType): Promise<ConnectChannelResponse> {
+  },
+  
+  syncChannel: async (channelId: ChannelType): Promise<ChannelResponse> => {
     try {
-      // In production, this would sync property data with the channel
-      await this.simulatedData.simulateApiDelay(2000);
+      // Simulate API call
+      await simulateApiCall();
       
-      // Simulate sync success with updated property count
-      const properties = Math.floor(Math.random() * 10) + 1;
+      // Find channel
+      const channelIndex = mockChannels.findIndex(c => c.id === channelId);
+      if (channelIndex === -1) {
+        return { success: false, error: "Channel not found" };
+      }
       
-      return {
+      if (!mockChannels[channelIndex].connected) {
+        return { success: false, error: "Channel not connected" };
+      }
+      
+      // Update last sync time
+      mockChannels[channelIndex] = {
+        ...mockChannels[channelIndex],
+        lastSync: new Date().toISOString(),
+      };
+      
+      return { 
         success: true,
-        channelId,
-        status: 'connected',
-        properties,
+        properties: mockChannels[channelIndex].properties
       };
     } catch (error) {
-      console.error(`Error syncing ${channelId}:`, error);
-      return {
-        success: false,
-        channelId,
-        status: 'error',
-        error: `Failed to sync with ${channelId}: ${(error as Error).message}`,
-      };
+      console.error(`Error syncing with ${channelId}:`, error);
+      return { success: false, error: "Sync failed" };
     }
-  }
-
-  /**
-   * Get channel settings and metadata
-   */
-  public async getChannelSettings(channelId: ChannelType): Promise<Record<string, any>> {
+  },
+  
+  getChannelSettings: async (channelId: ChannelType): Promise<ChannelSettings> => {
     try {
-      // In production, this would fetch channel-specific settings
-      await this.simulatedData.simulateApiDelay(500);
+      // Simulate API call
+      await simulateApiCall();
       
+      // Mock settings
       return {
-        channelId,
-        syncEnabled: true,
-        syncInterval: 'hourly',
+        syncInterval: "Every 1 hour",
+        lastSyncDate: new Date().toISOString(),
         syncCalendars: true,
         syncPricing: true,
-        lastSyncDate: new Date().toISOString(),
+        propertyMappings: {
+          "property1": "external_id_1",
+          "property2": "external_id_2",
+        }
       };
     } catch (error) {
       console.error(`Error fetching settings for ${channelId}:`, error);
-      throw error;
+      throw new Error("Failed to load channel settings");
+    }
+  },
+  
+  updateChannelSettings: async (channelId: ChannelType, settings: Partial<ChannelSettings>): Promise<boolean> => {
+    try {
+      // Simulate API call
+      await simulateApiCall();
+      
+      return true;
+    } catch (error) {
+      console.error(`Error updating settings for ${channelId}:`, error);
+      return false;
     }
   }
-}
-
-export default ChannelIntegrationService.getInstance();
+};

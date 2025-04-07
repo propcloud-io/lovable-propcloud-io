@@ -1,3 +1,4 @@
+
 import React from "react";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -8,6 +9,7 @@ import { CalendarSync } from "@/components/calendar/CalendarSync";
 import { useBookings } from "@/hooks/useBookings";
 import { useFeatureIntegration } from "@/hooks/useFeatureIntegration";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { BookingStatus, PaymentStatus } from "@/domain/models/booking";
 
 const Bookings = () => {
   const {
@@ -31,7 +33,7 @@ const Bookings = () => {
   const isLoading = bookingsLoading || integrationLoading;
   const error = bookingsError || integrationError;
 
-  const handleStatusUpdate = async (bookingId: string, status: 'confirmed' | 'pending' | 'completed' | 'cancelled') => {
+  const handleStatusUpdate = async (bookingId: string, status: BookingStatus) => {
     try {
       await Promise.all([
         updateBookingStatus(bookingId, status),
@@ -42,7 +44,7 @@ const Bookings = () => {
     }
   };
 
-  const handlePaymentUpdate = async (bookingId: string, status: 'paid' | 'pending' | 'refunded') => {
+  const handlePaymentUpdate = async (bookingId: string, status: PaymentStatus) => {
     try {
       await Promise.all([
         updatePaymentStatus(bookingId, status),
@@ -57,19 +59,19 @@ const Bookings = () => {
     try {
       await Promise.all([
         cancelBooking(bookingId),
-        handleBookingStatusChange(bookingId, 'cancelled')
+        handleBookingStatusChange(bookingId, BookingStatus.CANCELLED)
       ]);
     } catch (error) {
       console.error('Failed to cancel booking:', error);
     }
   };
 
-  const renderStatusBadge = (status: 'confirmed' | 'pending' | 'completed' | 'cancelled') => {
+  const renderStatusBadge = (status: BookingStatus) => {
     const styles = {
-      confirmed: 'bg-green-100 text-green-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-      completed: 'bg-blue-100 text-blue-800',
-      cancelled: 'bg-red-100 text-red-800'
+      [BookingStatus.CONFIRMED]: 'bg-green-100 text-green-800',
+      [BookingStatus.PENDING]: 'bg-yellow-100 text-yellow-800',
+      [BookingStatus.COMPLETED]: 'bg-blue-100 text-blue-800',
+      [BookingStatus.CANCELLED]: 'bg-red-100 text-red-800'
     };
 
     return (
@@ -79,11 +81,11 @@ const Bookings = () => {
     );
   };
 
-  const renderPaymentStatus = (status: 'paid' | 'pending' | 'refunded') => {
+  const renderPaymentStatus = (status: PaymentStatus) => {
     const styles = {
-      paid: 'text-green-500',
-      pending: 'text-yellow-500',
-      refunded: 'text-red-500'
+      [PaymentStatus.PAID]: 'text-green-500',
+      [PaymentStatus.PENDING]: 'text-yellow-500',
+      [PaymentStatus.REFUNDED]: 'text-red-500'
     };
 
     return (
@@ -96,10 +98,10 @@ const Bookings = () => {
 
   const renderContent = () => {
     if (isLoading) {
-  return (
+      return (
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    </div>
+        </div>
       );
     }
 
@@ -110,9 +112,9 @@ const Bookings = () => {
             <div className="flex items-center gap-2 text-red-500">
               <CheckCircle2 className="h-5 w-5" />
               <p>Error: {error.message}</p>
-                  </div>
-                </CardContent>
-              </Card>
+            </div>
+          </CardContent>
+        </Card>
       );
     }
 
@@ -125,32 +127,32 @@ const Bookings = () => {
               <Bell className="h-4 w-4" />
               <span>{notifications.length} notifications</span>
             </div>
-                                </div>
+          </div>
           <Button>
             <Calendar className="h-4 w-4 mr-2" />
             New Booking
-                                  </Button>
-                                </div>
+          </Button>
+        </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-                  <Card>
-                    <CardHeader>
+          <Card>
+            <CardHeader>
               <CardTitle>Upcoming Bookings</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
                 {bookings.map(booking => (
                   <div
                     key={booking.id}
                     className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">
-                            <div>
-                        <h3 className="font-medium">{booking.propertyName}</h3>
-                        <p className="text-sm text-muted-foreground">{booking.guestName}</p>
+                      <div>
+                        <h3 className="font-medium">{booking.property?.name || booking.propertyName}</h3>
+                        <p className="text-sm text-muted-foreground">{booking.guest?.firstName ? `${booking.guest.firstName} ${booking.guest.lastName}` : booking.guestName}</p>
                       </div>
                       {renderStatusBadge(booking.status)}
-                            </div>
+                    </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm">
                         <Clock className="h-4 w-4 text-muted-foreground" />
@@ -160,53 +162,53 @@ const Bookings = () => {
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <User className="h-4 w-4 text-muted-foreground" />
-                        <span>{booking.guestName}</span>
+                        <span>{booking.guest?.firstName ? `${booking.guest.firstName} ${booking.guest.lastName}` : booking.guestName}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">${booking.totalAmount}</span>
-                        {renderPaymentStatus(booking.paymentStatus)}
+                        <span className="text-sm font-medium">${booking.payment?.totalAmount || booking.totalAmount}</span>
+                        {renderPaymentStatus(booking.payment?.status as PaymentStatus || booking.paymentStatus || PaymentStatus.PENDING)}
                       </div>
                       <div className="flex gap-2 mt-2">
-                              <Button 
-                                variant="outline"
-                                size="sm"
-                          onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
-                          disabled={booking.status === 'confirmed'}
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleStatusUpdate(booking.id, BookingStatus.CONFIRMED)}
+                          disabled={booking.status === BookingStatus.CONFIRMED}
                         >
                           Confirm
-                              </Button>
-                              <Button 
+                        </Button>
+                        <Button 
                           variant="outline"
-                                size="sm"
-                          onClick={() => handlePaymentUpdate(booking.id, 'paid')}
-                          disabled={booking.paymentStatus === 'paid'}
+                          size="sm"
+                          onClick={() => handlePaymentUpdate(booking.id, PaymentStatus.PAID)}
+                          disabled={booking.payment?.status === PaymentStatus.PAID || booking.paymentStatus === PaymentStatus.PAID}
                         >
                           Mark as Paid
-                                  </Button>
-                                  <Button 
+                        </Button>
+                        <Button 
                           variant="destructive"
-                                    size="sm"
+                          size="sm"
                           onClick={() => handleCancel(booking.id)}
-                          disabled={booking.status === 'cancelled'}
+                          disabled={booking.status === BookingStatus.CANCELLED}
                         >
                           Cancel
-                              </Button>
+                        </Button>
                       </div>
                     </div>
-                      </div>
+                  </div>
                 ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-                  <Card>
-                    <CardHeader>
+          <Card>
+            <CardHeader>
               <CardTitle>Calendar Sync</CardTitle>
-                    </CardHeader>
-                    <CardContent>
+            </CardHeader>
+            <CardContent>
               <CalendarSync />
-                    </CardContent>
-                  </Card>
+            </CardContent>
+          </Card>
         </div>
 
         <Card>
@@ -218,7 +220,7 @@ const Bookings = () => {
               <div className="p-4 border rounded-lg">
                 <div className="text-2xl font-bold">{stats?.totalBookings || 0}</div>
                 <div className="text-sm text-muted-foreground">Total Bookings</div>
-                </div>
+              </div>
               <div className="p-4 border rounded-lg">
                 <div className="text-2xl font-bold">{stats?.occupancyRate || 0}%</div>
                 <div className="text-sm text-muted-foreground">Occupancy Rate</div>
@@ -231,10 +233,10 @@ const Bookings = () => {
                 <div className="text-2xl font-bold">{stats?.averageRating || 0}</div>
                 <div className="text-sm text-muted-foreground">Average Rating</div>
               </div>
-                </div>
+            </div>
           </CardContent>
         </Card>
-                </div>
+      </div>
     );
   };
 

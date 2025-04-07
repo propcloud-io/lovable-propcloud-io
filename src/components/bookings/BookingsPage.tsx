@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Calendar, CheckCircle2, Clock, User, CreditCard, Loader2, Bell } from '
 import { CalendarSync } from '@/components/calendar/CalendarSync';
 import { useBookings } from '@/hooks/useBookings';
 import { useFeatureIntegration } from '@/hooks/useFeatureIntegration';
+import { BookingStatus, PaymentStatus } from '@/domain/models/booking';
 
 export function BookingsPage() {
   const {
@@ -28,7 +30,7 @@ export function BookingsPage() {
   const isLoading = bookingsLoading || integrationLoading;
   const error = bookingsError || integrationError;
 
-  const handleStatusUpdate = async (bookingId: string, status: 'confirmed' | 'pending' | 'completed' | 'cancelled') => {
+  const handleStatusUpdate = async (bookingId: string, status: BookingStatus) => {
     try {
       await Promise.all([
         updateBookingStatus(bookingId, status),
@@ -39,7 +41,7 @@ export function BookingsPage() {
     }
   };
 
-  const handlePaymentUpdate = async (bookingId: string, status: 'paid' | 'pending' | 'refunded') => {
+  const handlePaymentUpdate = async (bookingId: string, status: PaymentStatus) => {
     try {
       await Promise.all([
         updatePaymentStatus(bookingId, status),
@@ -54,19 +56,19 @@ export function BookingsPage() {
     try {
       await Promise.all([
         cancelBooking(bookingId),
-        handleBookingStatusChange(bookingId, 'cancelled')
+        handleBookingStatusChange(bookingId, BookingStatus.CANCELLED)
       ]);
     } catch (error) {
       console.error('Failed to cancel booking:', error);
     }
   };
 
-  const renderStatusBadge = (status: 'confirmed' | 'pending' | 'completed' | 'cancelled') => {
+  const renderStatusBadge = (status: BookingStatus) => {
     const styles = {
-      confirmed: 'bg-green-100 text-green-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-      completed: 'bg-blue-100 text-blue-800',
-      cancelled: 'bg-red-100 text-red-800'
+      [BookingStatus.CONFIRMED]: 'bg-green-100 text-green-800',
+      [BookingStatus.PENDING]: 'bg-yellow-100 text-yellow-800',
+      [BookingStatus.COMPLETED]: 'bg-blue-100 text-blue-800',
+      [BookingStatus.CANCELLED]: 'bg-red-100 text-red-800'
     };
 
     return (
@@ -76,11 +78,11 @@ export function BookingsPage() {
     );
   };
 
-  const renderPaymentStatus = (status: 'paid' | 'pending' | 'refunded') => {
+  const renderPaymentStatus = (status: PaymentStatus) => {
     const styles = {
-      paid: 'text-green-500',
-      pending: 'text-yellow-500',
-      refunded: 'text-red-500'
+      [PaymentStatus.PAID]: 'text-green-500',
+      [PaymentStatus.PENDING]: 'text-yellow-500',
+      [PaymentStatus.REFUNDED]: 'text-red-500'
     };
 
     return (
@@ -142,8 +144,8 @@ export function BookingsPage() {
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h3 className="font-medium">{booking.propertyName}</h3>
-                      <p className="text-sm text-muted-foreground">{booking.guestName}</p>
+                      <h3 className="font-medium">{booking.property?.name || booking.propertyName}</h3>
+                      <p className="text-sm text-muted-foreground">{booking.guest?.firstName ? `${booking.guest.firstName} ${booking.guest.lastName}` : booking.guestName}</p>
                     </div>
                     {renderStatusBadge(booking.status)}
                   </div>
@@ -156,26 +158,26 @@ export function BookingsPage() {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <User className="h-4 w-4 text-muted-foreground" />
-                      <span>{booking.guestName}</span>
+                      <span>{booking.guest?.firstName ? `${booking.guest.firstName} ${booking.guest.lastName}` : booking.guestName}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">${booking.totalAmount}</span>
-                      {renderPaymentStatus(booking.paymentStatus)}
+                      <span className="text-sm font-medium">${booking.payment?.totalAmount || booking.totalAmount}</span>
+                      {renderPaymentStatus(booking.payment?.status as PaymentStatus || booking.paymentStatus || PaymentStatus.PENDING)}
                     </div>
                     <div className="flex gap-2 mt-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
-                        disabled={booking.status === 'confirmed'}
+                        onClick={() => handleStatusUpdate(booking.id, BookingStatus.CONFIRMED)}
+                        disabled={booking.status === BookingStatus.CONFIRMED}
                       >
                         Confirm
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handlePaymentUpdate(booking.id, 'paid')}
-                        disabled={booking.paymentStatus === 'paid'}
+                        onClick={() => handlePaymentUpdate(booking.id, PaymentStatus.PAID)}
+                        disabled={booking.payment?.status === PaymentStatus.PAID || booking.paymentStatus === PaymentStatus.PAID}
                       >
                         Mark as Paid
                       </Button>
@@ -183,7 +185,7 @@ export function BookingsPage() {
                         variant="destructive"
                         size="sm"
                         onClick={() => handleCancel(booking.id)}
-                        disabled={booking.status === 'cancelled'}
+                        disabled={booking.status === BookingStatus.CANCELLED}
                       >
                         Cancel
                       </Button>
@@ -232,4 +234,4 @@ export function BookingsPage() {
       </Card>
     </div>
   );
-} 
+}
