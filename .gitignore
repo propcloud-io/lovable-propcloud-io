@@ -29,3 +29,6 @@ functions/.env
 
 # GCP credentials
 /src/config/credentials/
+
+# Test files
+test-waitlist-cors-bypass.html
