@@ -2,20 +2,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Import Landing Page Sections
-import HeroSection from './components/sections/HeroSection.tsx';
-import FeaturesSection from './components/sections/FeaturesSection.tsx';
-import BenefitsSection from './components/sections/BenefitsSection.tsx';
-import HowItWorksSection from './components/sections/HowItWorksSection.tsx';
+// Import components directly from where they exist
+import HeroSection from './components/HeroSection';
+import FeaturesSection from './components/FeaturesSection';
+import BenefitsSection from './components/BenefitsSection';
+import HowItWorksSection from './components/HowItWorksSection';
 import { WhoWeAre } from './components/landing/WhoWeAre.tsx';
-import CTASection from './components/sections/CTASection.tsx';
+import Footer from './components/Footer';
 
-// Import Layout Components
-import Header from './components/layout/Header.tsx';
-import Footer from './components/layout/Footer.tsx';
-
-// Import Toaster for notifications
+// Import UI components
 import { Toaster } from '@/components/ui/toaster';
+import NavBar from './components/NavBar';
 
 // Placeholder pages for routing
 const LoginPage = () => <div>Login Page Placeholder</div>;
@@ -30,7 +27,6 @@ const LandingPage = () => (
     <FeaturesSection />
     <HowItWorksSection />
     <WhoWeAre />
-    <CTASection />
   </>
 );
 
@@ -38,7 +34,7 @@ const App = () => {
   return (
     <Router>
       <div className="min-h-screen bg-background text-foreground flex flex-col">
-        <Header />
+        <NavBar />
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<LandingPage />} />

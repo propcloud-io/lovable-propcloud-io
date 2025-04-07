@@ -3,7 +3,6 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, CheckCircle2, Clock, Calendar as CalendarIcon } from 'lucide-react';
-import { IntegrationPlaceholder } from '@/components/ui/integration-placeholder';
 
 export function CalendarSync() {
   const [syncing, setSyncing] = React.useState(false);
@@ -48,18 +47,36 @@ export function CalendarSync() {
         </Button>
       </div>
 
-      <IntegrationPlaceholder
-        title="Connect Calendar"
-        description="Connect your booking calendars to avoid double bookings and keep everything in sync."
-        icon={<Calendar className="h-8 w-8" />}
-        integrations={[
-          { name: 'Google Calendar', connected: true },
-          { name: 'Airbnb', connected: false },
-          { name: 'Booking.com', connected: false },
-          { name: 'Vrbo/HomeAway', connected: false },
-          { name: 'iCal Import', connected: true },
-        ]}
-      />
+      <Card className="border-dashed bg-muted/50">
+        <CardContent className="flex flex-col items-center justify-center p-6 text-center space-y-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+            <Calendar className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Connect Calendar</h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              Connect your booking calendars to avoid double bookings and keep everything in sync.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {[
+              { name: 'Google Calendar', connected: true },
+              { name: 'Airbnb', connected: false },
+              { name: 'Booking.com', connected: false },
+              { name: 'Vrbo/HomeAway', connected: false },
+              { name: 'iCal Import', connected: true },
+            ].map((integration) => (
+              <div key={integration.name} className="flex items-center gap-1 bg-background border px-3 py-1 rounded-full text-xs">
+                {integration.name}
+                {integration.connected && <CheckCircle2 className="h-3 w-3 text-green-500" />}
+              </div>
+            ))}
+          </div>
+          <Button variant="outline">
+            Manage Calendar Connections
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
