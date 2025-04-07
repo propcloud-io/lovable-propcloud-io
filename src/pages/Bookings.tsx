@@ -7,7 +7,6 @@ import { Calendar, CheckCircle2, Clock, User, CreditCard, Loader2, Bell } from "
 import { CalendarSync } from "@/components/calendar/CalendarSync";
 import { useBookings } from "@/hooks/useBookings";
 import { useFeatureIntegration } from "@/hooks/useFeatureIntegration";
-import { Booking, BookingStatus, PaymentStatus } from "@/domain/models/booking";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 const Bookings = () => {
@@ -22,7 +21,7 @@ const Bookings = () => {
   } = useBookings();
 
   const {
-    notifications = [],
+    notifications,
     isLoading: integrationLoading,
     error: integrationError,
     handleBookingStatusChange,
@@ -31,22 +30,23 @@ const Bookings = () => {
 
   const isLoading = bookingsLoading || integrationLoading;
   const error = bookingsError || integrationError;
-  const errorMessage = error instanceof Error ? error.message : (typeof error === 'string' ? error : 'An unknown error occurred');
 
-  const handleStatusUpdate = async (bookingId: string, status: BookingStatus) => {
+  const handleStatusUpdate = async (bookingId: string, status: 'confirmed' | 'pending' | 'completed' | 'cancelled') => {
     try {
       await Promise.all([
         updateBookingStatus(bookingId, status),
+        handleBookingStatusChange(bookingId, status)
       ]);
     } catch (error) {
       console.error('Failed to update booking status:', error);
     }
   };
 
-  const handlePaymentUpdate = async (bookingId: string, status: PaymentStatus) => {
+  const handlePaymentUpdate = async (bookingId: string, status: 'paid' | 'pending' | 'refunded') => {
     try {
       await Promise.all([
         updatePaymentStatus(bookingId, status),
+        handlePaymentStatusChange(bookingId, status)
       ]);
     } catch (error) {
       console.error('Failed to update payment status:', error);
@@ -57,44 +57,39 @@ const Bookings = () => {
     try {
       await Promise.all([
         cancelBooking(bookingId),
-        handleBookingStatusChange(bookingId, BookingStatus.CANCELLED)
+        handleBookingStatusChange(bookingId, 'cancelled')
       ]);
     } catch (error) {
       console.error('Failed to cancel booking:', error);
     }
   };
 
-  const renderStatusBadge = (status: BookingStatus) => {
+  const renderStatusBadge = (status: 'confirmed' | 'pending' | 'completed' | 'cancelled') => {
     const styles = {
-      [BookingStatus.CONFIRMED]: 'bg-green-100 text-green-800',
-      [BookingStatus.PENDING]: 'bg-yellow-100 text-yellow-800',
-      [BookingStatus.COMPLETED]: 'bg-blue-100 text-blue-800',
-      [BookingStatus.CANCELLED]: 'bg-red-100 text-red-800'
+      confirmed: 'bg-green-100 text-green-800',
+      pending: 'bg-yellow-100 text-yellow-800',
+      completed: 'bg-blue-100 text-blue-800',
+      cancelled: 'bg-red-100 text-red-800'
     };
-    const statusText = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status] || 'bg-gray-100 text-gray-800'}`}>
-        {statusText}
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
   };
 
-  const renderPaymentStatus = (status: PaymentStatus | undefined | null) => {
-    if (!status) {
-      return <span className="text-sm text-muted-foreground">N/A</span>;
-    }
+  const renderPaymentStatus = (status: 'paid' | 'pending' | 'refunded') => {
     const styles = {
-      [PaymentStatus.PAID]: 'text-green-500',
-      [PaymentStatus.PENDING]: 'text-yellow-500',
-      [PaymentStatus.REFUNDED]: 'text-red-500'
+      paid: 'text-green-500',
+      pending: 'text-yellow-500',
+      refunded: 'text-red-500'
     };
-    const statusText = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 
     return (
-      <div className={`flex items-center gap-1 ${styles[status] || 'text-gray-500'}`}>
+      <div className={`flex items-center gap-1 ${styles[status]}`}>
         <CreditCard className="h-4 w-4" />
-        <span className="text-sm capitalize">{statusText}</span>
+        <span className="text-sm capitalize">{status}</span>
       </div>
     );
   };
@@ -114,7 +109,7 @@ const Bookings = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-2 text-red-500">
               <CheckCircle2 className="h-5 w-5" />
-              <p>Error: {errorMessage}</p>
+              <p>Error: {error.message}</p>
             </div>
           </CardContent>
         </Card>
@@ -144,15 +139,15 @@ const Bookings = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {bookings.map((booking: Booking) => (
+                {bookings.map(booking => (
                   <div
-                    key={booking.id || `booking-${booking.checkIn}`}
+                    key={booking.id}
                     className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="font-medium">{booking.propertyName || booking.property?.name || `Property ${booking.propertyId}`}</h3>
-                        <p className="text-sm text-muted-foreground">{booking.guestName || (booking.guest ? `${booking.guest.firstName} ${booking.guest.lastName}` : `Guest ${booking.guestId}`)}</p>
+                        <h3 className="font-medium">{booking.propertyName}</h3>
+                        <p className="text-sm text-muted-foreground">{booking.guestName}</p>
                       </div>
                       {renderStatusBadge(booking.status)}
                     </div>
@@ -165,34 +160,34 @@ const Bookings = () => {
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <User className="h-4 w-4 text-muted-foreground" />
-                        <span>{booking.guestName || (booking.guest ? `${booking.guest.firstName} ${booking.guest.lastName}` : `Guest ${booking.guestId}`)} ({booking.guestCount} guests)</span>
+                        <span>{booking.guestName}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">${booking.totalAmount ?? booking.payment?.totalAmount}</span>
-                        {renderPaymentStatus(booking.paymentStatus || booking.payment?.status)}
+                        <span className="text-sm font-medium">${booking.totalAmount}</span>
+                        {renderPaymentStatus(booking.paymentStatus)}
                       </div>
                       <div className="flex gap-2 mt-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => booking.id && handleStatusUpdate(booking.id, BookingStatus.CONFIRMED)}
-                          disabled={!booking.id || booking.status === BookingStatus.CONFIRMED}
+                          onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
+                          disabled={booking.status === 'confirmed'}
                         >
                           Confirm
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => booking.id && handlePaymentUpdate(booking.id, PaymentStatus.PAID)}
-                          disabled={!booking.id || (booking.paymentStatus || booking.payment?.status) === PaymentStatus.PAID}
+                          onClick={() => handlePaymentUpdate(booking.id, 'paid')}
+                          disabled={booking.paymentStatus === 'paid'}
                         >
                           Mark as Paid
                         </Button>
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => booking.id && handleCancel(booking.id)}
-                          disabled={!booking.id || booking.status === BookingStatus.CANCELLED}
+                          onClick={() => handleCancel(booking.id)}
+                          disabled={booking.status === 'cancelled'}
                         >
                           Cancel
                         </Button>

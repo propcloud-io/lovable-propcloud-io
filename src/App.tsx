@@ -1,53 +1,46 @@
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+import Dashboard from "./pages/Dashboard";
+import Communication from "./pages/Communication";
+import SalesAutomation from "./pages/SalesAutomation";
+import Bookings from "./pages/Bookings";
+import Operations from "./pages/Operations";
+import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
+import Login from "./pages/Login";
 
-// Import components directly from where they exist
-import HeroSection from './components/HeroSection';
-import FeaturesSection from './components/FeaturesSection';
-import BenefitsSection from './components/BenefitsSection';
-import HowItWorksSection from './components/HowItWorksSection';
-import { WhoWeAre } from './components/landing/WhoWeAre.tsx';
-import Footer from './components/Footer';
+const queryClient = new QueryClient();
 
-// Import UI components
-import { Toaster } from '@/components/ui/toaster';
-import NavBar from './components/NavBar';
-
-// Placeholder pages for routing
-const LoginPage = () => <div>Login Page Placeholder</div>;
-const WaitlistPage = () => <div>Waitlist Page Placeholder</div>;
-const DashboardPage = () => <div>Dashboard Placeholder</div>;
-
-// Define the Landing Page structure
-const LandingPage = () => (
-  <>
-    <HeroSection />
-    <BenefitsSection />
-    <FeaturesSection />
-    <HowItWorksSection />
-    <WhoWeAre />
-  </>
-);
-
+// Create function component for App
 const App = () => {
   return (
-    <Router>
-      <div className="min-h-screen bg-background text-foreground flex flex-col">
-        <NavBar />
-        <main className="flex-grow">
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
           <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/waitlist" element={<WaitlistPage />} />
-            {/* Add dashboard route later when built */}
-            {/* <Route path="/dashboard/*" element={<DashboardPage />} /> */}
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/communication" element={<Communication />} />
+            <Route path="/dashboard/sales-automation" element={<SalesAutomation />} />
+            <Route path="/dashboard/bookings" element={<Bookings />} />
+            <Route path="/dashboard/operations" element={<Operations />} />
+            <Route path="/dashboard/analytics" element={<Analytics />} />
+            <Route path="/dashboard/settings" element={<Settings />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
-        </main>
-        <Footer />
-        <Toaster />
-      </div>
-    </Router>
+        </TooltipProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 };
 

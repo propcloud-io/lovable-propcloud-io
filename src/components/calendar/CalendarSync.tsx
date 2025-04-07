@@ -1,82 +1,125 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle2, Clock, Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar, RefreshCw, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { IntegrationPlaceholder } from '@/components/ui/integration-placeholder';
+import { useCalendar } from '@/hooks/useCalendar';
 
 export function CalendarSync() {
-  const [syncing, setSyncing] = React.useState(false);
-  const [lastSynced, setLastSynced] = React.useState<Date | null>(null);
+  const {
+    calendars,
+    isLoading,
+    error,
+    syncCalendar,
+    connectCalendar
+  } = useCalendar();
 
-  const handleSync = () => {
-    setSyncing(true);
-    // Simulate syncing process
-    setTimeout(() => {
-      setSyncing(false);
-      setLastSynced(new Date());
-    }, 2000);
+  const handleSync = async (calendarId: string) => {
+    try {
+      await syncCalendar(calendarId);
+    } catch (error) {
+      console.error('Failed to sync calendar:', error);
+    }
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-semibold">Calendar Sync</h3>
-          {lastSynced && (
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              Last synced: {lastSynced.toLocaleString()}
-            </p>
-          )}
-        </div>
-        <Button 
-          onClick={handleSync} 
-          disabled={syncing}
-        >
-          {syncing ? (
-            <>
-              <span className="animate-spin mr-2">&#8635;</span>
-              Syncing...
-            </>
-          ) : (
-            <>
-              <CalendarIcon className="h-4 w-4 mr-2" />
-              Sync Now
-            </>
-          )}
-        </Button>
-      </div>
+  const handleConnect = async (type: 'google' | 'outlook' | 'apple') => {
+    try {
+      await connectCalendar(type);
+    } catch (error) {
+      console.error('Failed to connect calendar:', error);
+    }
+  };
 
-      <Card className="border-dashed bg-muted/50">
-        <CardContent className="flex flex-col items-center justify-center p-6 text-center space-y-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <Calendar className="h-6 w-6 text-muted-foreground" />
+  const renderStatusIcon = (status: 'connected' | 'disconnected' | 'error') => {
+    switch (status) {
+      case 'connected':
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'error':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <XCircle className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-2 text-red-500">
+            <XCircle className="h-5 w-5" />
+            <p>Error: {error.message}</p>
           </div>
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Connect Calendar</h3>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Connect your booking calendars to avoid double bookings and keep everything in sync.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {[
-              { name: 'Google Calendar', connected: true },
-              { name: 'Airbnb', connected: false },
-              { name: 'Booking.com', connected: false },
-              { name: 'Vrbo/HomeAway', connected: false },
-              { name: 'iCal Import', connected: true },
-            ].map((integration) => (
-              <div key={integration.name} className="flex items-center gap-1 bg-background border px-3 py-1 rounded-full text-xs">
-                {integration.name}
-                {integration.connected && <CheckCircle2 className="h-3 w-3 text-green-500" />}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Calendar Sync
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {calendars.map(calendar => (
+              <div
+                key={calendar.id}
+                className="flex items-center justify-between p-4 border rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  {renderStatusIcon(calendar.status)}
+                  <div>
+                    <h3 className="font-medium">{calendar.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Last synced: {new Date(calendar.lastSync).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSync(calendar.id)}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Sync Now
+                </Button>
               </div>
             ))}
           </div>
-          <Button variant="outline">
-            Manage Calendar Connections
-          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Add New Calendar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <IntegrationPlaceholder
+              title="Google Calendar"
+              description="Sync your Google Calendar to manage bookings and events"
+              onConnect={() => handleConnect('google')}
+            />
+            <IntegrationPlaceholder
+              title="Outlook Calendar"
+              description="Connect your Outlook Calendar for seamless event management"
+              onConnect={() => handleConnect('outlook')}
+            />
+          </div>
         </CardContent>
       </Card>
     </div>
   );
-}
+} 

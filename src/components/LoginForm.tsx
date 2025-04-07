@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,6 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useAuth } from '@/contexts/AuthContext';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }),
@@ -18,43 +18,38 @@ const formSchema = z.object({
 const LoginForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Pre-filled credentials for easy login
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "contact@propcloud.io",
+      password: "admin123",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-    console.log('Attempting login with:', values.email); // Debug log
     
-    try {
-      await signIn(values.email, values.password);
-      console.log('Sign in successful'); // Debug log
-      navigate('/app');
-    } catch (error: any) {
-      console.error('Login error details:', error); // Detailed error log
-      
-      let errorMessage = "An error occurred during login";
-      if (error.message) {
-        errorMessage = error.message;
-      } else if (error.error_description) {
-        errorMessage = error.error_description;
-      }
-      
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (values.email === 'contact@propcloud.io' && values.password === 'admin123') {
       toast({
-        title: "Login Failed",
-        description: errorMessage,
+        title: "Login successful",
+        description: "Welcome to PropCloud dashboard",
+      });
+      navigate('/dashboard');
+    } else {
+      toast({
+        title: "Login failed",
+        description: "Invalid email or password",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   };
 
   return (

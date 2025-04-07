@@ -1,6 +1,5 @@
-
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
-import DashboardNavbar from '@/components/dashboard/DashboardNavbar';
+import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
+import { DashboardNavbar } from '@/components/dashboard/DashboardNavbar';
 
 export default function CommunicationsLayout({
   children,

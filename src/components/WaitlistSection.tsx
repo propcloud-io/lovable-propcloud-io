@@ -1,19 +1,10 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
-import { CheckCircle, ArrowRight, AlertCircle, Check } from "lucide-react";
-import { WaitlistService } from "@/lib/supabase/services";
-import { supabase } from "@/lib/supabase";
-
-// ListItem component for the waitlist benefits
-const ListItem = ({ children }: { children: React.ReactNode }) => (
-  <li className="flex items-start">
-    <Check className="h-5 w-5 mr-2 mt-0.5 text-white" />
-    <span>{children}</span>
-  </li>
-);
+import { useToast } from "@/hooks/use-toast";
+import { CheckCircle, ArrowRight } from "lucide-react";
 
 const WaitlistSection = () => {
   const [email, setEmail] = useState("");
@@ -21,135 +12,50 @@ const WaitlistSection = () => {
   const [properties, setProperties] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean | null>(null);
   const { toast } = useToast();
-
-  // Check if Supabase is connected
-  useEffect(() => {
-    const checkSupabaseConnection = async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-        setIsSupabaseConnected(!error);
-        console.log('Supabase connection check:', { data, error });
-      } catch (error) {
-        console.error('Error checking Supabase connection:', error);
-        setIsSupabaseConnected(false);
-      }
-    };
-
-    checkSupabaseConnection();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Basic validation
+    
     if (!email || !name) {
       toast({
         title: "Missing information",
-        description: "Please provide your name and email address.",
+        description: "Please fill in all required fields.",
         variant: "destructive",
       });
       return;
     }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast({
-        title: "Invalid email",
-        description: "Please provide a valid email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Number validation
-    if (properties && isNaN(parseInt(properties))) {
-      toast({
-        title: "Invalid number",
-        description: "Please provide a valid number of properties.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    
     setIsSubmitting(true);
-    console.log('Submitting waitlist form with:', { email, name, properties });
-
+    
+    // In a real implementation, this would send the data to a server or email API
     try {
-      console.log('Calling WaitlistService.addToWaitlist');
-      await WaitlistService.addToWaitlist({
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      
+      console.log("Form submitted:", {
+        name,
         email,
-        fullName: name,
-        numberOfProperties: properties ? parseInt(properties) : undefined
+        properties,
       });
-      console.log('Successfully added to waitlist');
-
+      
+      // Show success state
+      setIsSubmitted(true);
+      
       toast({
         title: "Thank you for joining!",
-        description: "We'll keep you updated on our launch.",
+        description: "We'll be in touch soon with early access information.",
       });
-
-      setIsSubmitted(true);
-      setEmail('');
-      setName('');
-      setProperties('');
+      
+      // In a real implementation, we would send this data to an API endpoint
+      // that would forward it to contact@propcloud.io
     } catch (error) {
-      console.error('Waitlist submission error:', error);
-      // Log more details about the error
-      if (error instanceof Error) {
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-
-        // Handle specific error messages
-        if (error.message.includes('already on our waitlist')) {
-          toast({
-            title: "Already registered",
-            description: error.message,
-            variant: "destructive",
-          });
-        } else if (error.message.includes('Permission denied') || error.message.includes('policy')) {
-          toast({
-            title: "Permission error",
-            description: "We're experiencing some technical difficulties with our database permissions. Please email us at contact@propcloud.io to join the waitlist instead.",
-            variant: "destructive",
-            action: (
-              <a
-                href={`mailto:contact@propcloud.io?subject=Waitlist%20Signup&body=Please%20add%20me%20to%20the%20waitlist:%0A%0AName:%20${encodeURIComponent(name)}%0AEmail:%20${encodeURIComponent(email)}%0ANumber%20of%20Properties:%20${encodeURIComponent(properties || 'Not specified')}%0A%0AThank%20you!`}
-                className="bg-white text-black px-3 py-1 rounded-md text-xs font-medium"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Email Us
-              </a>
-            ),
-          });
-          console.error('Supabase permission error details:', error);
-          // Log additional information that might help diagnose the issue
-          console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
-          console.log('User info:', { email, name, properties });
-        } else if (error.message.includes('table does not exist')) {
-          toast({
-            title: "System error",
-            description: "Our waitlist system is currently unavailable. Please try again later.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: error.message || "An error occurred while joining the waitlist.",
-            variant: "destructive",
-          });
-        }
-      } else {
-        console.error('Unknown error type:', typeof error);
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred. Please try again later.",
-          variant: "destructive",
-        });
-      }
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Submission failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -174,15 +80,9 @@ const WaitlistSection = () => {
               </ul>
               <div className="mt-12 text-white/80">
                 <p>Limited spots available. Don't miss out!</p>
-                {isSupabaseConnected === false && (
-                  <div className="mt-4 p-3 bg-yellow-600/30 rounded-lg flex items-center text-white">
-                    <AlertCircle className="w-5 h-5 mr-2" />
-                    <span>Database connection issue. Your submission may not be saved.</span>
-                  </div>
-                )}
               </div>
             </div>
-
+            
             <div className="p-10">
               {!isSubmitted ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -196,7 +96,7 @@ const WaitlistSection = () => {
                       required
                     />
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address *</Label>
                     <Input
@@ -208,7 +108,7 @@ const WaitlistSection = () => {
                       required
                     />
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="properties">Number of Properties</Label>
                     <Input
@@ -218,25 +118,14 @@ const WaitlistSection = () => {
                       placeholder="e.g. 5"
                     />
                   </div>
-
-                  {isSupabaseConnected === false && (
-                    <div className="p-3 bg-yellow-50 rounded-lg text-sm text-yellow-800 mb-4">
-                      <div className="flex items-center">
-                        <AlertCircle className="w-4 h-4 mr-2" />
-                        <span className="font-medium">Connection issue detected</span>
-                      </div>
-                      <p className="mt-1 ml-6">There may be a problem with our database connection. Your submission might not be saved.</p>
-                      <p className="mt-1 ml-6">Alternatively, you can email us at <a href="mailto:contact@propcloud.io" className="text-blue-600 underline">contact@propcloud.io</a> to join the waitlist.</p>
-                    </div>
-                  )}
-
+                  
                   <Button
                     type="submit"
                     className="w-full"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
-                      "Joining..."
+                      "Submitting..."
                     ) : (
                       <>
                         Join Waitlist
@@ -244,7 +133,7 @@ const WaitlistSection = () => {
                       </>
                     )}
                   </Button>
-
+                  
                   <p className="text-xs text-muted-foreground text-center mt-4">
                     By signing up, you agree to our{" "}
                     <a href="#" className="underline hover:text-propcloud-600">
@@ -286,6 +175,13 @@ const WaitlistSection = () => {
   );
 };
 
-// ListItem component is already defined at the top of the file
+const ListItem = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <li className="flex items-start">
+      <CheckCircle className="h-5 w-5 mr-2 shrink-0 mt-0.5" />
+      <span>{children}</span>
+    </li>
+  );
+};
 
 export default WaitlistSection;
