@@ -1,19 +1,20 @@
+
 import type { Property } from './property';
 
 // Re-export Property type
 export type { Property };
 
 export enum BookingStatus {
-  PENDING = "pending",
-  CONFIRMED = "confirmed",
-  COMPLETED = "completed",
-  CANCELLED = "cancelled"
+  PENDING = "PENDING",
+  CONFIRMED = "CONFIRMED",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED"
 }
 
 export enum PaymentStatus {
-  PENDING = "pending",
-  PAID = "paid",
-  REFUNDED = "refunded"
+  PENDING = "PENDING",
+  PAID = "PAID",
+  REFUNDED = "REFUNDED"
 }
 
 export interface Guest {
@@ -27,13 +28,8 @@ export interface Guest {
   previousStays?: number;
 }
 
-export interface Property {
-  id: string;
-  name?: string;
-}
-
 export interface PaymentDetails {
-  status: PaymentStatus | string;
+  status: PaymentStatus;
   totalAmount: number;
   currency: string;
   breakdown: {
