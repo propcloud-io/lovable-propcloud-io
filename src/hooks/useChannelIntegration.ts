@@ -1,12 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import channelIntegrationService, { 
-  Channel, 
-  ChannelType, 
-  ConnectChannelResponse 
-} from '../services/channelIntegrationService';
+import { ChannelIntegrationService, ConnectChannelResponse } from '@/services/channelIntegrationService';
+import { useToast } from '@/hooks/use-toast';
 
 interface UseChannelIntegrationResult {
-  channels: Channel[];
+  channels: ChannelIntegrationService[];
   isLoading: boolean;
   error: Error | null;
   connectChannel: (channelId: ChannelType) => Promise<ConnectChannelResponse>;
@@ -22,7 +19,7 @@ interface UseChannelIntegrationResult {
  * Provides methods to connect, disconnect, and sync with different booking channels
  */
 export function useChannelIntegration(): UseChannelIntegrationResult {
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<ChannelIntegrationService[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -30,7 +27,7 @@ export function useChannelIntegration(): UseChannelIntegrationResult {
     try {
       setIsLoading(true);
       setError(null);
-      const fetchedChannels = await channelIntegrationService.getChannels();
+      const fetchedChannels = await ChannelIntegrationService.getChannels();
       setChannels(fetchedChannels);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error fetching channels'));
@@ -56,7 +53,7 @@ export function useChannelIntegration(): UseChannelIntegrationResult {
       );
 
       // Attempt to connect to the channel
-      const response = await channelIntegrationService.connectChannel(channelId);
+      const response = await ChannelIntegrationService.connectChannel(channelId);
       
       // Update the channel with the response data
       setChannels(prevChannels => 
@@ -107,7 +104,7 @@ export function useChannelIntegration(): UseChannelIntegrationResult {
       );
 
       // Attempt to disconnect from the channel
-      const response = await channelIntegrationService.disconnectChannel(channelId);
+      const response = await ChannelIntegrationService.disconnectChannel(channelId);
       
       // Update the channel with the response data
       setChannels(prevChannels => 
@@ -150,7 +147,7 @@ export function useChannelIntegration(): UseChannelIntegrationResult {
       );
 
       // Attempt to sync with the channel
-      const response = await channelIntegrationService.syncChannel(channelId);
+      const response = await ChannelIntegrationService.syncChannel(channelId);
       
       // Update the channel with the response data
       setChannels(prevChannels => 
@@ -192,7 +189,7 @@ export function useChannelIntegration(): UseChannelIntegrationResult {
 
   const getChannelSettings = useCallback(async (channelId: ChannelType): Promise<Record<string, any>> => {
     try {
-      return await channelIntegrationService.getChannelSettings(channelId);
+      return await ChannelIntegrationService.getChannelSettings(channelId);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(`Failed to get settings for ${channelId}`);
       setError(error);

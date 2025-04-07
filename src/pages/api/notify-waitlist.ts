@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import * as nodemailer from 'nodemailer';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import nodemailer from 'nodemailer';
 
 interface WaitlistNotificationData {
   entryId: string;

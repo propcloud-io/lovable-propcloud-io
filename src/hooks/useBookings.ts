@@ -11,6 +11,9 @@ export interface BookingStats {
   averageRating: number;
 }
 
+// Define PaymentStatus type based on service definition
+type PaymentStatus = 'pending' | 'paid' | 'refunded';
+
 export function useBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [stats, setStats] = useState<BookingStats | null>(null);
@@ -141,7 +144,7 @@ export function useBookings() {
     }
   };
 
-  const updatePaymentStatus = async (bookingId: string, paymentStatus: string) => {
+  const updatePaymentStatus = async (bookingId: string, paymentStatus: PaymentStatus) => {
     setIsLoading(true);
     setError(null);
 

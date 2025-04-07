@@ -1,6 +1,22 @@
-# PropCloud.io Assistant App (propassistant-ai)
+# PropCloud.io - Autonomous Property Management Platform
 
-This repository contains the frontend application for PropCloud.io, an AI-powered property management dashboard.
+This repository contains the frontend application for PropCloud.io, an AI-powered property management platform for short-term rental hosts.
+
+## Clean Slate Approach (April 2025)
+
+We've recently started a clean slate approach to rebuild the application with a more consistent architecture. The new implementation is located in the `PropCloud` directory and uses a modern tech stack with Vite, React, TypeScript, and Tailwind CSS.
+
+### Reasons for Clean Slate
+
+1. **Multiple Development Environment Switches**: The project had been developed across multiple environments (Lovable, Cursor, Windsurf), leading to inconsistencies and technical debt.
+
+2. **Deployment Issues**: Previous deployment attempts faced challenges with different platforms, causing delays and configuration problems.
+
+3. **Backend Integration Challenges**: The original implementation had issues with Supabase integration, particularly with the waitlist form and authentication.
+
+4. **Code Organization**: A fresh start allows for better code organization and a more maintainable architecture.
+
+The clean slate approach preserves the design and functionality of the original application while providing a more solid foundation for future development.
 
 ## Vision
 
@@ -23,7 +39,66 @@ The goal of PropCloud.io is to provide property owners and managers with a unifi
 *   **Email:** Resend (via Supabase Edge Function)
 *   **Deployment:** Currently deployed on Netlify (previously testing Lovable)
 
-## Current Status (As of 2025-04-06)
+## Clean Slate Project Structure
+
+```
+propcloud-app/
+├── public/              # Static assets
+├── src/
+│   ├── components/      # Reusable UI components
+│   │   ├── layout/      # Layout components (Header, Footer, etc.)
+│   │   ├── sections/    # Page sections for the landing page
+│   │   └── ui/          # Basic UI components (Button, Input, etc.)
+│   ├── lib/             # Utility functions and services
+│   │   └── supabase/    # Supabase client and services
+│   ├── pages/           # Page components
+│   ├── App.tsx          # Main application component
+│   └── main.tsx         # Entry point
+├── .env                 # Environment variables (not committed to git)
+├── .env.example         # Example environment variables
+├── index.html           # HTML template
+├── package.json         # Dependencies and scripts
+├── tailwind.config.js   # Tailwind CSS configuration
+└── vite.config.ts       # Vite configuration
+```
+
+## Clean Slate Development Setup
+
+1. Navigate to the PropCloud directory:
+   ```bash
+   cd PropCloud/propcloud-app
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   - Create a `.env` file in the project root.
+   - Add your Supabase URL and Anon Key:
+     ```
+     VITE_SUPABASE_URL=YOUR_SUPABASE_URL
+     VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+     ```
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+   The application should be available at `http://localhost:5173`.
+
+## Clean Slate Deployment
+
+The application is configured for deployment on Netlify. The `netlify.toml` file contains the necessary configuration for deployment.
+
+### Deployment Steps
+
+1. Connect the GitHub repository to Netlify
+2. Configure the environment variables in the Netlify dashboard
+3. Deploy the application
+
+## Legacy Project Status (As of 2025-04-06)
 
 *   **Public Landing Page:** Functional landing page (`src/pages/Index.tsx`) displaying marketing sections.
 *   **Waitlist:** Waitlist form (`src/components/WaitlistSection.tsx`) collects user Name, Email, and Property Count and attempts to save to Supabase.
@@ -42,7 +117,24 @@ The goal of PropCloud.io is to provide property owners and managers with a unifi
 *   **Deployment:** Successfully deployed to Netlify with SPA redirect rules configured via `netlify.toml`. Supabase environment variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) have been configured on Netlify.
 *   **Lovable Deployment:** Stuck due to platform issues (incorrect build error reporting, failing to deploy latest commits).
 
-## Key Pending Features / Next Steps
+## Clean Slate Roadmap
+
+### Completed
+- Basic project setup with Vite, React, TypeScript, and Tailwind CSS
+- Initial landing page design
+
+### In Progress
+- Landing page implementation with all sections
+- Waitlist form with Supabase integration
+
+### Upcoming
+- Authentication with Supabase
+- Dashboard implementation
+- Property management features
+- Booking management
+- Guest communication
+
+## Legacy Key Pending Features / Next Steps
 
 1.  **Resolve Waitlist Email Alert Trigger:** Diagnose and fix the Supabase Database Webhook or implement a reliable alternative trigger for the `handle-waitlist-signup` Edge Function.
 2.  **Implement Waitlist Confirmation Email:** Add logic to the Edge Function to send a confirmation email *to the user* upon successful waitlist signup.
