@@ -97,7 +97,7 @@ const CommunicationStep: React.FC = () => {
                 rows={4}
               />
               <p className="text-xs text-muted-foreground">
-                Available variables: {{"{guest_name}"}, {"{property_name}"}, {"{check_in_time}"}, {"{check_out_time}"}, {"{access_code}"}}
+                Available variables: {"{guest_name}"}, {"{property_name}"}, {"{check_in_time}"}, {"{check_out_time}"}, {"{access_code}"}
               </p>
             </div>
           ))}
