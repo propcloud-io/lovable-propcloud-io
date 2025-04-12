@@ -11,14 +11,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, ChevronDown, LogOut, Settings, User, HelpCircle } from "lucide-react";
+import { Bell, ChevronDown, LogOut, Settings, User, HelpCircle, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useOnboarding } from "@/contexts/OnboardingContext";
 
 const DashboardNavbar = () => {
   const [notifications, setNotifications] = useState(3);
   const { toast } = useToast();
+  const { startOnboarding } = useOnboarding();
 
   const handleShowTour = () => {
     // Remove the tour completed flag from localStorage
@@ -44,6 +46,10 @@ const DashboardNavbar = () => {
         </div>
 
         <div className="flex items-center space-x-4">
+          <Button variant="outline" size="sm" onClick={startOnboarding} className="hidden md:flex">
+            <Sparkles className="mr-2 h-4 w-4 text-amber-500" />
+            Onboarding
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon" className="relative">
@@ -113,6 +119,10 @@ const DashboardNavbar = () => {
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Account Settings</span>
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={startOnboarding}>
+                <Sparkles className="mr-2 h-4 w-4 text-amber-500" />
+                <span>Start Onboarding</span>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleShowTour}>
                 <HelpCircle className="mr-2 h-4 w-4" />
@@ -134,3 +144,4 @@ const DashboardNavbar = () => {
 };
 
 export default DashboardNavbar;
+

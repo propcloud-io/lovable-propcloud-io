@@ -96,7 +96,20 @@ const LoginForm = () => {
             </Button>
           </form>
         </Form>
+
+        <div className="mt-4 pt-4 border-t text-center">
+          <p className="text-sm text-muted-foreground mb-2">For demo purposes, use:</p>
+          <div className="text-xs text-muted-foreground">
+            <div>Email: <span className="font-mono">contact@propcloud.io</span></div>
+            <div>Password: <span className="font-mono">admin123</span></div>
+          </div>
+        </div>
       </CardContent>
+      <CardFooter className="flex flex-col space-y-2">
+        <Button variant="link" className="w-full" onClick={() => navigate('/dashboard')}>
+          Skip login and explore the demo
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
