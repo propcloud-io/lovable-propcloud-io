@@ -28,16 +28,38 @@ const WaitlistSection = () => {
     
     setIsSubmitting(true);
     
-    // In a real implementation, this would send the data to a server or email API
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      console.log("Form submitted:", {
+      // Send data to contact@propcloud.io via email
+      const formData = {
         name,
         email,
         properties,
+        date: new Date().toISOString(),
+      };
+
+      // Using emailjs-com to send email directly from browser
+      const response = await fetch('https://formsubmit.co/ajax/contact@propcloud.io', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message: `New waitlist signup!
+Name: ${formData.name}
+Email: ${formData.email}
+Properties: ${formData.properties || 'Not specified'}
+Date: ${new Date().toLocaleString()}`,
+          _subject: 'New PropCloud Waitlist Signup!',
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit form');
+      }
+      
+      console.log("Form submitted:", formData);
       
       // Show success state
       setIsSubmitted(true);
@@ -47,8 +69,6 @@ const WaitlistSection = () => {
         description: "We'll be in touch soon with early access information.",
       });
       
-      // In a real implementation, we would send this data to an API endpoint
-      // that would forward it to contact@propcloud.io
     } catch (error) {
       console.error("Error submitting form:", error);
       toast({
