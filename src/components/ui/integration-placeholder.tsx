@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ export interface IntegrationPlaceholderProps {
   title: string;
   description: string;
   onConnect: () => void;
+  platform?: string;
   icon?: string;
 }
 
@@ -14,6 +16,7 @@ export function IntegrationPlaceholder({
   title,
   description,
   onConnect,
+  platform,
   icon = 'plus'
 }: IntegrationPlaceholderProps) {
   return (
