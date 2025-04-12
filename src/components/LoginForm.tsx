@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useOnboarding } from '@/contexts/OnboardingContext';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }),
@@ -18,9 +19,9 @@ const formSchema = z.object({
 const LoginForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { startOnboarding } = useOnboarding();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Remove pre-filled credentials
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,6 +41,17 @@ const LoginForm = () => {
         title: "Login successful",
         description: "Welcome to PropCloud dashboard",
       });
+
+      // Check if user needs onboarding
+      const onboardingCompleted = localStorage.getItem('onboarding_completed') === 'true';
+      const isNewUser = !localStorage.getItem('onboarding_started');
+      
+      if (!onboardingCompleted && isNewUser) {
+        // This is a new user who hasn't completed onboarding yet
+        localStorage.setItem('onboarding_started', 'true');
+        startOnboarding(); // Start the onboarding process
+      }
+      
       navigate('/dashboard');
     } else {
       toast({
@@ -50,6 +62,11 @@ const LoginForm = () => {
     }
     
     setIsLoading(false);
+  };
+
+  const handleDemoAccess = () => {
+    // For demo exploration without login
+    navigate('/dashboard');
   };
 
   return (
@@ -106,7 +123,7 @@ const LoginForm = () => {
         </div>
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
-        <Button variant="link" className="w-full" onClick={() => navigate('/dashboard')}>
+        <Button variant="link" className="w-full" onClick={handleDemoAccess}>
           Skip login and explore the demo
         </Button>
       </CardFooter>

@@ -12,17 +12,17 @@ const messageTemplates = [
   {
     id: 'welcome',
     title: 'Welcome Message',
-    content: 'Hi {{guest_name}}, welcome to {{property_name}}! We're excited to have you stay with us. Check-in is at {{check_in_time}}. Please let me know if you have any questions!'
+    content: "Hi {{guest_name}}, welcome to {{property_name}}! We're excited to have you stay with us. Check-in is at {{check_in_time}}. Please let me know if you have any questions!"
   },
   {
     id: 'checkin',
     title: 'Check-in Instructions',
-    content: 'Hello {{guest_name}}, your stay at {{property_name}} begins tomorrow. To access the property, please use the code {{access_code}} on the keypad at the main entrance. Feel free to reach out if you need assistance!'
+    content: "Hello {{guest_name}}, your stay at {{property_name}} begins tomorrow. To access the property, please use the code {{access_code}} on the keypad at the main entrance. Feel free to reach out if you need assistance!"
   },
   {
     id: 'checkout',
     title: 'Check-out Reminder',
-    content: 'Hi {{guest_name}}, we hope you're enjoying your stay at {{property_name}}. Just a friendly reminder that check-out is tomorrow at {{check_out_time}}. Please leave the keys on the kitchen counter when you leave. Thank you!'
+    content: "Hi {{guest_name}}, we hope you're enjoying your stay at {{property_name}}. Just a friendly reminder that check-out is tomorrow at {{check_out_time}}. Please leave the keys on the kitchen counter when you leave. Thank you!"
   }
 ];
 

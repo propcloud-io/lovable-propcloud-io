@@ -20,6 +20,7 @@ import DirectBookingWidget from "@/components/sales/DirectBookingWidget";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useOnboarding } from "@/contexts/OnboardingContext";
 import { Plus, PlusCircle, UserPlus, Zap, Layers, BookOpen, Sparkles } from "lucide-react";
 import {
   Dialog,
@@ -61,12 +62,25 @@ const availableWidgets = [
 
 const Dashboard = () => {
   const { toast } = useToast();
+  const { startOnboarding } = useOnboarding();
   const [showTour, setShowTour] = useState(true);
   const [addWidgetOpen, setAddWidgetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [activeWidgets, setActiveWidgets] = useState([
     "revenue", "messages", "tasks", "channels", "pricing", "onboarding"
   ]);
+
+  // Check for onboarding on dashboard mount
+  useEffect(() => {
+    const onboardingCompleted = localStorage.getItem('onboarding_completed') === 'true';
+    const onboardingStarted = localStorage.getItem('onboarding_started') === 'true';
+    
+    // If onboarding has been started but not completed, and we're on the dashboard,
+    // show the onboarding flow
+    if (onboardingStarted && !onboardingCompleted) {
+      startOnboarding();
+    }
+  }, [startOnboarding]);
 
   // Load user preferences from localStorage on initial render
   useEffect(() => {

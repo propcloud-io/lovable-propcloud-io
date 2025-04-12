@@ -50,12 +50,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const savedStep = localStorage.getItem('onboarding_step') as OnboardingStep || 'welcome';
     
     if (!onboardingCompleted) {
-      // Only auto-start onboarding if the user is new and hasn't completed it
-      const isNewUser = !localStorage.getItem('onboarding_started');
-      if (isNewUser) {
-        setIsOnboarding(true);
-        localStorage.setItem('onboarding_started', 'true');
-      }
+      // Don't auto-start onboarding here anymore
+      // Just set the current step from saved state
       setCurrentStep(savedStep);
     }
   }, []);

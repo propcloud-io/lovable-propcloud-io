@@ -26,6 +26,7 @@ const App = () => {
       <BrowserRouter>
         <TooltipProvider>
           <OnboardingProvider>
+            {/* OnboardingFlow will only show when isOnboarding is true */}
             <OnboardingFlow />
             <Toaster />
             <Sonner />
