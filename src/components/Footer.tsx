@@ -49,6 +49,9 @@ const Footer = () => {
                 <li className="text-muted-foreground">
                   Support: help@propcloud.io
                 </li>
+                <li className="text-muted-foreground">
+                  Phone: +1 (321) 344-0508
+                </li>
               </ul>
             </div>
           </div>
